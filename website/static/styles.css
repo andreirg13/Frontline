@@ -1,0 +1,67 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.card, .list-group-item, .form-control {
+    background-color: #1e1e1e;
+    border: none;
+    color: #ffffff
+}
+
+.form-control::placeholder {
+
+    color: #aaaaaa;
+
+}
+
+.form-control {
+  background-color: #1e1e1e;  /* dark input */
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.form-control:focus {
+  background-color: #1e1e1e;  /* keeps it dark on focus */
+  color: #fff;
+  border-color: #ffffff;      /* maroon border on focus */
+  box-shadow: none;
+}
+
+.btn-primary {
+  background-color: #652C2F; /* FAIBC Maroon */
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #ab3027;
+}
+
+.navbar {
+    background-color: #652C2F !important;
+}
+
+.input-group .form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.input-group .input-group-text {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.songHeader {
+    transition: opacity 0.2s ease, height 0.2s ease, margin 0.2s ease;
+}
+
+.search-mode-container .songHeader {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.search-mode-container.focused .songHeader {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+}

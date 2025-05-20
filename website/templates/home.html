@@ -1,4 +1,54 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %}
 {%block content%}
-<h1> this is the Home page </h1>
+<div class="mainContent">
+<div class="container mt-4 search-mode-container" id="container">
+    <div class="songHeader">
+        <h1 class="text-center mt-4">Songs</h1>
+    </div>
+
+    <div class="input-group mb-3">
+        <span class="input-group-text bg-dark text-light border-dark">
+            <i class="bi bi-search"></i>
+        </span>
+        <input
+            type="text"
+            id="searchInput"
+            class="form-control bg-dark text-light border-dark"
+            placeholder="Search for songs..."
+            autocomplete="off"
+        />
+    </div>
+    
+    <ul class="list-group mb-4" id="songList">
+        {%for song in current_user.song %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+            <strong>{{ song.title }}</strong><br>
+            <small>{{ song.artist }} | Original Key: {{song.og_key }}</small>
+            </div>
+            <button type="button" class="btn-close" aria-label="Close" onClick="deleteSong({{song.id }})"></button>
+        </li>
+        {%endfor%}
+    </ul>
+
+    <div id="addSongSection">
+        <form method="POST" class="card p-3 shadow-sm">
+            <div class="mb-2">
+                <input type="text" name="title" class="form-control" placeholder="Song Title:" />
+            </div>
+            <div class="mb2">
+                <input type="text" name="artist" class="form-control" placeholder="Artist name:" />
+            </div>
+            <div class="mb-3">
+                <input type="text" name="og_key" class="form-control" placeholder="Original Key:" />
+            </div>
+            <br />
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Add Song</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
 {%endblock%}
