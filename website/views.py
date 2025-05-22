@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, jsonify
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from sqlalchemy import func
 from flask_login import  login_required, current_user
 from .models import Song
@@ -23,8 +23,10 @@ def home():
 
         if not title or len(title) < 1:
             flash('Song title is too short!', category ='error')
+            return redirect(url_for('views.home')) 
         if og_key not in music_keys:
             flash('Not a possible key!', category="error")
+            return redirect(url_for('views.home')) 
         #Check if song is already added by the SAME artist
         existing_song = Song.query.filter(
             func.lower(Song.title) == title.lower(),

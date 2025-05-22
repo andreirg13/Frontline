@@ -1,9 +1,12 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %}
 {%block content%}
-<div class="mainContent">
+<div id="mainView">
 <div class="container mt-4 search-mode-container" id="container">
-    <div class="songHeader">
+    <div class="songHeader d-flex justify-content-between align-items-center">
         <h1 class="text-center mt-4">Songs</h1>
+        <button id="toggleAddBtn" class="btn btn-outline-light rounded-pill ms-3">
+            <i class="bi bi-plus-lg"></i> Add 
+        </button>
     </div>
 
     <div class="input-group mb-3">
@@ -26,12 +29,28 @@
             <strong>{{ song.title }}</strong><br>
             <small>{{ song.artist }} | Original Key: {{song.og_key }}</small>
             </div>
-            <button type="button" class="btn-close" aria-label="Close" onClick="deleteSong({{song.id }})"></button>
+            <div class="dropdown">
+                 <button class="btn btn-sm btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                 </button>
+                 <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item" href="#" onclick="deleteSong({{ song.id }})">Delete</a></li>
+                        <li><a class="dropdown-item" href="#">Edit</a></li>
+                        <li><a class="dropdown-item" href="#">Add to Setlist</a></li>
+                 </ul>
+            </div>
+
         </li>
         {%endfor%}
     </ul>
+</div>
+</div>
 
-    <div id="addSongSection">
+<div id="addSongView" class="hidden">
+    <div id="addSongSection" class="hidden">
+        <button id="toggleBackBtn" class="btn btn-outline-light rounded-pill ms-3">
+            <i class="bi bi-arrow-return-left"></i> Back 
+        </button>
         <form method="POST" class="card p-3 shadow-sm">
             <div class="mb-2">
                 <input type="text" name="title" class="form-control" placeholder="Song Title:" />
@@ -40,7 +59,7 @@
                 <input type="text" name="artist" class="form-control" placeholder="Artist name:" />
             </div>
             <div class="mb-3">
-                <input type="text" name="og_key" class="form-control" placeholder="Original Key:" />
+                    <input type="text" name="og_key" class="form-control" placeholder="Original Key:" />
             </div>
             <br />
             <div class="text-center">
@@ -49,6 +68,7 @@
         </form>
     </div>
 </div>
-</div>
+    
+
 
 {%endblock%}

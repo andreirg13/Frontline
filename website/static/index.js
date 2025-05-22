@@ -39,4 +39,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+
+    const mainView = document.getElementById("mainView");
+    const addSongView = document.getElementById("addSongView");
+    const addBtn = document.getElementById("toggleAddBtn");
+    const backBtn = document.getElementById("toggleBackBtn");
+
+    addBtn.addEventListener("click", () => {
+        const addSongForm = document.querySelector('#addSongSection form');
+        if (addSongForm) addSongForm.reset();
+
+        mainView.classList.add("hidden");
+        addSongView.classList.remove("hidden");
+        addSongSection.classList.remove("hidden");
+    });
+
+    backBtn.addEventListener("click", () => {
+        addSongView.classList.remove("visible");
+        setTimeout(() => {    
+            addSongView.classList.add("hidden");
+            mainView.classList.remove("hidden");
+        }, 10);
+    });
 });
