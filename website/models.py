@@ -1,6 +1,7 @@
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+from datetime import date
 
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,3 +18,21 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
     song = db.relationship('Song')
+
+# Association Table
+class SetlistSong(db.Model):
+    __tablename__ = 'setlist_song'
+    id = db.Column(db.Integer, primary_key=True)
+    setlist_id = db.Column(db.Integer, db.ForeignKey('setlist.id'))
+    song_id = db.Column(db.Integer, db.ForeignKey('song.id'))
+    position = db.Column(db.Integer)  # ✅ new field to store order
+
+    song = db.relationship('Song')
+
+class Setlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    date_created = db.Column(db.Date, default=date.today)       # The sunday that the setlist is intended for 
+    name = db.Column(db.String(150))
+
+    songs_link = db.relationship('SetlistSong', backref='setlist', cascade="all, delete-orphan", order_by='SetlistSong.position')

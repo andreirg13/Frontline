@@ -1,74 +1,131 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %}
 {%block content%}
-<div id="mainView">
-<div class="container mt-4 search-mode-container" id="container">
-    <div class="songHeader d-flex justify-content-between align-items-center">
-        <h1 class="text-center mt-4">Songs</h1>
-        <button id="toggleAddBtn" class="btn btn-outline-light rounded-pill ms-3">
-            <i class="bi bi-plus-lg"></i> Add 
-        </button>
-    </div>
-
-    <div class="input-group mb-3">
-        <span class="input-group-text bg-dark text-light border-dark">
-            <i class="bi bi-search"></i>
-        </span>
-        <input
-            type="text"
-            id="searchInput"
-            class="form-control bg-dark text-light border-dark"
-            placeholder="Search for songs..."
-            autocomplete="off"
-        />
-    </div>
-    
-    <ul class="list-group mb-4" id="songList">
-        {%for song in current_user.song %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-            <strong>{{ song.title }}</strong><br>
-            <small>{{ song.artist }} | Original Key: {{song.og_key }}</small>
+<div class="sidebar">
+    <h4>This Week's Setlist</h4>
+    <div id="sb-setlist">
+        {% for song in setlist_songs %}
+        <div class="setlist-item">
+            <div class="item-content">
+                <div class="sb-song-title">{{ song.title }}</div>
+                <div class="sb-song-artist">{{ song.artist }}</div>
             </div>
-            <div class="dropdown">
-                 <button class="btn btn-sm btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="bi bi-three-dots-vertical"></i>
-                 </button>
-                 <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#" onclick="deleteSong({{ song.id }})">Delete</a></li>
-                        <li><a class="dropdown-item" href="#">Edit</a></li>
-                        <li><a class="dropdown-item" href="#">Add to Setlist</a></li>
-                 </ul>
-            </div>
-
-        </li>
-        {%endfor%}
-    </ul>
-</div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
+<div class="main" id="mainView">
+    <!-- RIGHT COLUMN -->
+    <div id="main-content" class="flex-grow-1 p-4">
+        <div class="main-header-grid">
+  
+        
+        <div class="grid-title">Song Library</div>
+
+        <div class="grid-left">
+            <div class="search-wrapper">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Search for songs..." autocomplete="off" />
+            </div>
+        </div>
+
+        <div class="grid-right">
+            <button id="toggleAddBtn" class="add-song-button" onclick="addSongForm()">
+            <span class="plus-icon">+</span> Add Song
+            </button>
+
+            <div class="sort-controls">
+            <form method="GET" id="sortForm" style="display: inline">
+            <label for="sortSelect">Sort by: </label>
+            <select id="sortSelect" name="sort" onchange="document.getElementById('sortForm').submit()">
+                <option value="title" {% if current_sort == 'title' %}selected{% endif %}>Title (A–Z)</option>
+                <option value="artist" {% if current_sort == 'artist' %}selected{% endif %}>Artist (A–Z)</option>
+            </select>
+            </form>
+            </div>
+        </div>
+
+        </div>
+
+        <div class="song-table-labels">
+            <div class="title-col">Title</div>
+            <div class="artist-col">Artist</div>
+            <div class="key-col">Key</div>
+            <div class="dropdown-col"></div>
+        </div>
+        <div class="song-table-wrapper">
+            <ul class="list-group mb-4" id="songList">
+                {% for song in songs %}
+                <li class="list-group-item d-flex justify-content-between align-items-center song-row" draggable="true" data-id="{{ song.id }}">
+                    <!-- Title -->
+                    <div class="col title-col">
+                        <strong>{{ song.title }}</strong>
+                    </div>
+                    <!-- Artist -->
+                    <div class="col artist-col">
+                        {{ song.artist }}
+                    </div>
+                    <!-- Key -->
+                    <div class="col key-col">
+                    {{ song.og_key }}                 
+                    </div>
+
+                    
+                    <div class="col-auto dropdown ms-auto">
+                        <button class="dropdown-toggle-btn btn btn-sm btn-outline-light">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#" onclick="deleteSong({{ song.id }})">Delete</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="openEditForm({{song.id}}, '{{ song.title|escape }}', '{{ song.artist|escape }}', '{{ song.og_key|escape }}')">Edit</a></li>
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#">Add to a Setlist</a>
+                                <ul class="dropdown-menu scrollable-dropdown">
+                                    {% for sunday in sundays %}
+                                    <li>
+                                        <a href="#" class="dropdown-item" onclick="addToSetlist({{ song.id }}, '{{ sunday.isoformat() }}')">
+                                            {{ sunday.strftime('%b %d, %Y') }}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT SONG VIEW -->
+
+
+
+
+<!-- ADD SONG VIEW -->
 <div id="addSongView" class="hidden">
     <div id="addSongSection" class="hidden">
         <button id="toggleBackBtn" class="btn btn-outline-light rounded-pill ms-3">
             <i class="bi bi-arrow-return-left"></i> Back 
         </button>
-        <form method="POST" class="card p-3 shadow-sm">
-            <div class="mb-2">
-                <input type="text" name="title" class="form-control" placeholder="Song Title:" />
-            </div>
-            <div class="mb2">
-                <input type="text" name="artist" class="form-control" placeholder="Artist name:" />
-            </div>
-            <div class="mb-3">
-                    <input type="text" name="og_key" class="form-control" placeholder="Original Key:" />
-            </div>
-            <br />
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary">Add Song</button>
-            </div>
+
+        <h2 id="formTitle"> Add Song</h2>
+
+        <form method="POST" id = "addSongForm" class="add-song-form">
+            <input type="hidden" id="song_id" name="song_id" value="">
+            <label for="title">Song Title</label>
+            <input type="text" name="title" id="title" placeholder="Song Title:" />
+
+            <label for="title">Artist Name</label>
+            <input type="text" name="artist" id="artist" placeholder="Artist Name:" />
+
+            <label for="title">Original Key</label>
+            <input type="text" name="og_key" id="og_key" placeholder="Original Key:" />
+
+            <button id="submitBtn" type="submit">Add Song</button>
         </form>
     </div>
 </div>
-    
-
-
-{%endblock%}
+{% endblock %}
