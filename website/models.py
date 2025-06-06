@@ -11,6 +11,13 @@ class Song(db.Model):
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
 
+    # filterables
+
+    tempo = db.Column(db.String(20)) # e.g. 'Fast', 'Slow'
+    singer_type = db.Column(db.String(10)) # 'Male' or 'Female'
+    holiday = db.Column(db.String(20))  # 'Christmas', 'Easter', 'Palm Sunday' etc.
+
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
