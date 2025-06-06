@@ -20,7 +20,17 @@ function deleteSong(songId) {
     });
 }
 
+
+function getSelectedDate() {
+    const select = document.querySelector('#setlist-date-dropdown');
+    return select ? select.value : null;
+}
+
+
 function addToSetlist(songId, setlistDate) {
+    console.log("setlist date is: ", setlistDate)
+    const date = getSelectedDate();
+
     fetch (`/add_to_setlist/${songId}/${setlistDate}`, {
         method: 'POST',
     }).then(res => res.json())
@@ -44,6 +54,12 @@ function addToSetlist(songId, setlistDate) {
         console.error('Error adding to setlist', error);
     })
 };
+
+
+
+
+
+
 
 function openEditForm(songId, title, artist, og_key) {
     document.getElementById('formTitle').textContent = 'Edit Song';
@@ -237,11 +253,13 @@ document.addEventListener("DOMContentLoaded", () => {
     function getThisSundayDate() {
         const today = new Date();
         const dayOfWeek = today.getDay();
-        const diffToSunday = (7-dayOfWeek) % 7; //days until Sunday
+        const diffToSunday = dayOfWeek === 0 ? 7 : (7-dayOfWeek)
+        console.log("difftoSunday is: ", diffToSunday)
         const sunday = new Date();
         sunday.setDate(today.getDate() + diffToSunday);
-
-        return sunday.toISOString().split('T')[0];
+        console.log(sunday.getDate())
+        console.log(sunday.toISOString().split('T')[0])
+        return sunday.toLocaleDateString('en-CA');
     };
     
 
@@ -254,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const setlistDate = getThisSundayDate();
+    console.log(setlistDate)
     const sidebar_drop = document.querySelector('.sidebar'); // ← FULL sidebar as drop zone
     const setlist = document.getElementById('sb-setlist');
 
@@ -265,81 +284,30 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebar_drop.addEventListener('drop', (e) => {
         e.preventDefault();
         const songId = e.dataTransfer.getData('text/plain');
+        console.log("dropped the date: ", setlistDate)
         addToSetlist(songId, setlistDate); // Will still append to #sb-setlist
     });
     }
 
 
-
-
-    let isDragging = false;
-    let currentItem = null;
-    let container = document.getElementById("sb-setlist");
-    let sidebar = document.querySelector(".sidebar");
-    let initY = 0;
-    let containerOffsetY = 0;
-
-    document.addEventListener("mousedown", (e) => {
-        const item = e.target.closest(".setlist-item");
-        if (item && container.contains(item)) {
-        isDragging = true;
-        currentItem = item;
-        containerOffsetY = currentItem.offsetTop;
-        currentItem.classList.add("dragging");
-        document.body.style.userSelect = "none";
-        currentItem.classList.add("insert-animation");
-        currentItem.style.top = containerOffsetY + "px";
-        initY = e.clientY;
+    new Sortable(document.getElementById('sb-setlist'), {
+        animation: 150,
+        onEnd: function () {
+            const newOrder = [...document.querySelectorAll('.setlist-item')]
+                .map(el => el.dataset.id);
+            const setlistDate = getThisSundayDate();
+            fetch('/update_setlist_order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    song_ids: newOrder,
+                    setlist_date: setlistDate
+                })
+            })
+            .then(res=>res.json())
+            .then(data => console.log(data.message))
+            .catch(err => console.error('Failed to update order:', err));
         }
-    });
-
-    document.addEventListener("mousemove", (e) => {
-        if (isDragging && currentItem) {
-        currentItem.classList.remove("insert-animation");
-
-        const sidebarRect = sidebar.getBoundingClientRect();
-        const cursorY = e.clientY;
-        const newTop = containerOffsetY - (initY - cursorY);
-
-        currentItem.style.top = `${newTop}px`;
-
-        // Auto-scroll the sidebar when dragging near top/bottom
-        const scrollThreshold = 40;
-        if (cursorY < sidebarRect.top + scrollThreshold) {
-            sidebar.scrollTop -= 10;
-        } else if (cursorY > sidebarRect.bottom - scrollThreshold) {
-            sidebar.scrollTop += 10;
-        }
-
-        const siblings = [...container.querySelectorAll(".setlist-item:not(.dragging)")];
-        const nextItem = siblings.find((sibling) => {
-            return (
-            cursorY - sidebarRect.top <=
-            sibling.offsetTop + sibling.offsetHeight / 2
-            );
-        });
-
-        siblings.forEach((sibling) => sibling.style.marginTop = "10px");
-
-        if (nextItem) {
-            nextItem.style.marginTop = `${currentItem.offsetHeight + 20}px`;
-        }
-
-        container.insertBefore(currentItem, nextItem);
-        }
-    });
-
-    document.addEventListener("mouseup", () => {
-        if (currentItem) {
-        currentItem.classList.remove("dragging");
-        currentItem.style.top = "auto";
-        currentItem = null;
-        isDragging = false;
-        document.body.style.userSelect = "auto";
-        }
-
-        const siblings = [...container.querySelectorAll(".setlist-item:not(.dragging)")];
-        siblings.forEach((sibling) => sibling.style.marginTop = "10px");
     });
 
 

@@ -4,7 +4,7 @@
     <h4>This Week's Setlist</h4>
     <div id="sb-setlist">
         {% for link in setlist_songs %}
-        <div class="setlist-item">
+        <div class="setlist-item" data-id="{{ link.song.id }}">
             <div class="item-content">
                 <div class="sb-song-title">{{ link.song.title }}</div>
                 <div class="sb-song-artist">{{ link.song.artist }}</div>

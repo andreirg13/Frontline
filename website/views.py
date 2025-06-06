@@ -120,6 +120,7 @@ def viewSetlist():
 @views.route('/add_to_setlist/<int:song_id>/<string:setlist_date>', methods = ['POST'])
 @login_required
 def add_to_setlist(song_id, setlist_date):
+    print("Hit /add_to_setlist route")
 
     # Convert string to a date object
     try:
@@ -241,3 +242,22 @@ def edit_song (song_id):
         'artist': song.artist,
         'og_key': song.og_key
     }})
+
+@views.route('/update_setlist_order', methods = ['POST'])
+@login_required
+def update_setlist_order():
+    data = request.get_json()
+    song_ids = data.get('song_ids')
+    setlist_date = data.get('setlist_date')
+
+    setlist = Setlist.query.filter_by(user_id=current_user.id, date_created=setlist_date).first()
+    if not setlist:
+        return jsonify({'success': False, 'message': 'Setlist not found'}), 404
+
+    for position, song_id in enumerate(song_ids, start=1):
+        link = SetlistSong.query.filter_by(setlist_id=setlist.id, song_id=song_id).first()
+        if link:
+            link.position = position
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Order updated successfully'})
+
