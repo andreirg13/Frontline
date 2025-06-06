@@ -3,11 +3,11 @@
 <div class="sidebar">
     <h4>This Week's Setlist</h4>
     <div id="sb-setlist">
-        {% for song in setlist_songs %}
+        {% for link in setlist_songs %}
         <div class="setlist-item">
             <div class="item-content">
-                <div class="sb-song-title">{{ song.title }}</div>
-                <div class="sb-song-artist">{{ song.artist }}</div>
+                <div class="sb-song-title">{{ link.song.title }}</div>
+                <div class="sb-song-artist">{{ link.song.artist }}</div>
             </div>
         </div>
         {% endfor %}

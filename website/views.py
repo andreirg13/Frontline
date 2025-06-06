@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from sqlalchemy import func
 from flask_login import  login_required, current_user
-from .models import Song, User, Setlist
+from .models import Song, User, Setlist, SetlistSong
 from . import db
 import json
 from datetime import date, timedelta, datetime
@@ -109,7 +109,8 @@ def viewSetlist():
         Setlist.user_id == current_user.id,
         Setlist.date_created >= two_months_ago
         ).order_by(Setlist.date_created.desc()).all()
-    this_weeks_setlist = Setlist.query.filter_by(user_id=current_user.id, date_created=this_sunday).all()
+    this_weeks_setlist = [s for s in all_setlists if s.date_created == this_sunday]
+
 
     sundays = get_sundays()
 
@@ -120,13 +121,13 @@ def viewSetlist():
 @login_required
 def add_to_setlist(song_id, setlist_date):
 
-    # Convert string to date
+    # Convert string to a date object
     try:
         date_obj = datetime.strptime(setlist_date, '%Y-%m-%d').date()
     except ValueError:
         return jsonify({'success': False, 'message': 'Invalid date format'}), 400
     
-    setlist =Setlist.query.filter_by(user_id=current_user.id, date_created=date_obj).first()
+    setlist = Setlist.query.filter_by(user_id=current_user.id, date_created=date_obj).first()
 
     # Check if this setlist has been created yet
     if not setlist:
@@ -134,28 +135,40 @@ def add_to_setlist(song_id, setlist_date):
         db.session.add(setlist)
         db.session.commit()
 
-    if len(setlist.songs) >= 4:
+
+    if len(setlist.songs_link) >= 4:
         return jsonify({'success': False, 'message': 'Setlist is full!'}), 400
+
+    # Check if song is already in the setlist
+
+    existing_link = SetlistSong.query.filter_by(setlist_id=setlist.id, song_id=song_id).first()
+    if existing_link:
+         return jsonify({'success': False, 'message': 'Song is already in the setlist.'})
+
+
+
+    # Create SetlistSong link with the correct position
 
     # Get the song object
     song = Song.query.get_or_404(song_id)
+    last_position = db.session.query(func.max(SetlistSong.position))\
+        .filter_by(setlist_id=setlist.id).scalar()
+    new_position = (last_position or 0) + 1
 
-    # Create the setlist if not created yet
+    link = SetlistSong(setlist_id=setlist.id, song_id=song.id, position=new_position)
+    db.session.add(link)
+    db.session.commit()
+    print("Current songs in setlist:", [link.song.title for link in setlist.songs_link])
 
-    if song not in setlist.songs:
-        setlist.songs.append(song)
-        db.session.commit()
-        return jsonify({'success': True,
-                        'message': 'Song added to the setlist!',
-                        'song': {
-                            'id': song.id,
-                            'title': song.title,
-                            'artist': song.artist,
-                            'og_key': song.og_key
-                        } 
-                        })
-    else:
-        return jsonify({'success': False, 'message': 'Song is already in the setlist.'})
+    return jsonify({'success': True,
+                    'message': 'Song added to the setlist!',
+                    'song': {
+                        'id': song.id,
+                        'title': song.title,
+                        'artist': song.artist,
+                        'og_key': song.og_key
+                    } 
+                    })
 
 @views.route('/delete-from-setlist/<int:song_id>/<string:setlist_date>', methods=['POST'])
 @login_required
@@ -173,13 +186,14 @@ def delete_from_setlist(song_id,setlist_date):
     if not setlist:
         return jsonify({'message': "No setlist found"}), 404
 
-    song = Song.query.get(song_id)
 
-    if song in setlist.songs:
-        setlist.songs.remove(song)
+    song_to_delete = SetlistSong.query.filter_by(setlist_id=setlist.id, song_id=song_id).first()
+    if song_to_delete:
+        db.session.delete(song_to_delete)
         db.session.commit()
         return jsonify({'message': 'Song removed from setlist'})
-    return jsonify({'message': 'Song not in setlist'}), 404
+    return jsonify({'success': True, 'message': 'Song removed from setlist'}), 200
+
 
 
 def get_sundays(num_weeks_before=6, num_weeks_after=10):

@@ -182,7 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
             currentSongItems.forEach(item => {
                 const text = item.textContent.toLowerCase().replace(/\s+/g, ' ').trim();
 
-
                 const match = text.includes(query);
                 item.style.setProperty("display", match ? "" : "none", "important");
             });
@@ -246,12 +245,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     
 
-
+    if (songListItems.length > 0) {
     songListItems.forEach(item => {
     item.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', item.dataset.id);
     });
     });
+    }
 
     const setlistDate = getThisSundayDate();
     const sidebar_drop = document.querySelector('.sidebar'); // ← FULL sidebar as drop zone
