@@ -6,13 +6,14 @@ from flask_login import current_user
 app = create_app()
 
 with app.app_context():
-    with open('seed_songs.csv', newline='', encoding='utf-8') as csvfile:
+    with open('full_seed_songs.csv', newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             song = Song(
-            title=row['title'],
-            artist=row['artist'],
-            og_key=row['og_key'],
+            title=row['title'].strip(),
+            artist=row['artist'].strip(),
+            og_key=row['og_key'].strip(),
+            pdf_url=row['pdf_url'].strip(),
             user_id=1
             )
             db.session.add(song)

@@ -1,5 +1,5 @@
 body {
-    font-family: 'Inter', 'Segoe UI', sans-serif;   
+    font-family: 'Poppins', sans-serif;
     background-color: #000000;
     color: #eaeaea;
 }
@@ -160,12 +160,13 @@ h1 {
 }
 
 .add-song-button {
-    background-color: #652C2F;
+    background-color: #301416;
     color: white;
     padding: 10px 20px;
     font-size: 15px;
     border: none;
     border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -173,7 +174,7 @@ h1 {
 }
 
 .add-song-button:hover {
-  background-color: #8a2c2c;
+  background-color: #471919;
 }
 
 .plus-icon {
@@ -185,6 +186,7 @@ h1 {
 #toggleBackBtn {
     background-color: #652C2F;
     color: white;
+    border:none;
     font-weight: 500;
     padding: 0.4rem 1.2rem;
     transition: background-color .2s ease;
@@ -251,15 +253,27 @@ h1 {
   margin-bottom: 0rem;
   border-radius: 12px;
   padding: 1rem;
-  background-color: #0f0d0d;
+  background-color: transparent;
   border: none;
   width: 100%;
   border-radius: 0;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out
 }
 
 .list-group-item:hover {
   transform: scale(1.01);
   z-index: 10;
+}
+
+.logo-img {
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  height: 50px;        /* smaller height */
+  width: auto;
+  object-fit: contain;
+  border-radius: 0.5rem;
 }
 
 
@@ -342,17 +356,26 @@ h1 {
     "navbar navbar"
     "sidebar main";
   height: 100vh;
-  grid-gap: .4rem .4rem;
+  background-color: #000000; /* outer bg color */
+  border-radius: 1rem;       /* outer corners */
+  grid-gap: .4rem .5rem;
 }
+
+
 
 .sidebar {
   grid-area: sidebar;
   overflow-y: auto;
+  border-radius: 1rem;
   padding: 0.5rem 1rem;
   min-height: 300px; /* or height: 100vh for full height */
   max-height: 100vh;
-  background-color: #0f0d0d;
   position: relative;
+  background: linear-gradient(to bottom, rgba(233, 233, 233, 0.726), rgba(82, 79, 79, 0.8));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+ 
   
 }
 
@@ -376,10 +399,15 @@ h1 {
   box-shadow: rgba(0, 0, 0, 0.1) 0 2px 6px;
   cursor: grab;
   border-radius: 2mm;
-  background: black;
+  background: rgba(10, 7, 7, 0.842);
   margin: 10px 0;
   padding: 1rem;
+  transition: all 0.1s ease-in-out;
 
+}
+.setlist-item:hover {
+  background-color: rgb(75, 31, 31);
+  color: #ffffff;
 }
 
 .setlist-item.dragging {
@@ -421,6 +449,7 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-radius: 1rem 0 0 1rem;
 
 }
 
@@ -431,18 +460,28 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #0f0d0d;
+  background: linear-gradient(to bottom, rgba(41, 41, 41, 0.726), rgba(15, 13, 13, 0.8));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   width: 100%;
+  border-radius: 1rem;
   max-width: 100%;
+  
 
 }
 
+
+
 #main-content {
+  /*backdrop-filter: blur(10px);*/
+  background-color: transparent;
   width: 100%;
   padding: 0 1.5rem;
   margin: 0 auto;
   max-width: 95%;
   box-sizing: border-box;
+  
 }
 
 .auth-view {
@@ -469,10 +508,13 @@ Title, Artist, Key, etc. styles
   width: 100%;
   gap: .75rem;
   padding: .75rem 2rem;
-  background-color: #0f0d0d;
+  /*background-color: #0f0d0d;*/
+  background-color: transparent;
   border: none;
   align-items: center;
 }
+
+
 
 .song-table-wrapper {
   width: 100%;
@@ -481,7 +523,7 @@ Title, Artist, Key, etc. styles
 }
 
 .song-row:hover {
-  background-color: #161616;
+  background-color: rgb(46, 46, 46);
 }
 
 .title-col {
@@ -597,7 +639,28 @@ Title, Artist, Key, etc. styles
 }
 
 .add-song-form button[type="submit"]:hover {
-    background-color: #3a191b;
+    background-color: #5a292c;
+}
+
+select {
+  background-color: #2b2b2b;
+  color: #ebebeb;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10'%3E%3Cpolygon fill='%23ebebeb' points='7,10 0,0 14,0'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.65rem;
+}
+
+select:focus {
+  outline: none;
+  background-color: #2b2b2b;
 }
 
 
@@ -611,9 +674,9 @@ Title, Artist, Key, etc. styles
   display: grid;
   grid-template-columns: 1fr auto; /* left fills, right shrinks */
   grid-template-rows: auto auto;
-  gap: 3rem 2rem;
+  gap: 2rem 2rem;
   margin-top: 2rem;
-  margin-bottom: 3.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .grid-title {
@@ -633,6 +696,11 @@ Title, Artist, Key, etc. styles
   gap: 1rem;
 }
 
+.grid-filters {
+  grid-column: 1 / -1;
+}
+
+
 .sort-controls select {
   background-color: #222;
   color: #fff;
@@ -640,6 +708,29 @@ Title, Artist, Key, etc. styles
   border-radius: 4px;
   padding: 0.3rem 0.6rem;
 }
+
+.filter-btn {
+  padding: 0.4rem 1rem;
+  border: none;
+  border-radius: 999px;
+  background-color: #252525;
+  color: #ebebeb;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-btn:hover {
+  background-color: #3b3b3b;
+  color: #ffffff;
+}
+
+.filter-btn.active {
+  background-color: rgb(75, 31, 31);; /* same as hover */
+  color: white;
+}
+
+
 
 
 
@@ -716,4 +807,50 @@ SETLISTTTTTTTTTTTTTT
 .song-key {
   flex: 1;
   text-align: right;
+}
+
+/*
+  MODAL screen
+*/
+iframe:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border: none;
+}
+
+
+.custom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-modal.hidden {
+  display: none;
+}
+
+.custom-modal-content {
+  background-color: #1c1c1c;
+  color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 80vw;             /* wider modal overall */
+  max-width: 1000px;       /* limit max width */
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+.custom-close-btn {
+  float: right;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: white;
 }

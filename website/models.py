@@ -16,6 +16,10 @@ class Song(db.Model):
     tempo = db.Column(db.String(20)) # e.g. 'Fast', 'Slow'
     singer_type = db.Column(db.String(10)) # 'Male' or 'Female'
     holiday = db.Column(db.String(20))  # 'Christmas', 'Easter', 'Palm Sunday' etc.
+    
+    pdf_url = db.Column(db.String(300))
+
+
 
 
 

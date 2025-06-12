@@ -1,10 +1,13 @@
-from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, current_app
 from sqlalchemy import func
 from flask_login import  login_required, current_user
 from .models import Song, User, Setlist, SetlistSong
 from . import db
 import json
 from datetime import date, timedelta, datetime
+from werkzeug.utils import secure_filename
+import os
+
 
 views = Blueprint('views', __name__)
 music_keys = [
@@ -24,10 +27,24 @@ def home():
             title = data.get('title')
             artist = data.get('artist')
             og_key = data.get('og_key')
+            tempo = data.get('tempo')
+            singer_type = data.get('singer_type')
+            holiday = data.get('holiday')
+            file = request.files.get('pdf_file')
+            pdf_url = ''
+
+            if file and file.filename.endswith('.pdf'):
+                filename = secure_filename(f"{title}_{artist}.pdf").replace(" ", "_")
+                save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                file.save(save_path)
+                pdf_url = f"/static/chords/{filename}"
         else:
             title = request.form.get('title')
             artist = request.form.get('artist')
             og_key = request.form.get('og_key')
+            tempo = request.form.get('tempo')
+            singer_type = request.form.get('singer_type')
+            holiday = request.form.get('holiday')
 
         if not title or len(title) < 1:
             return jsonify({'success': False, 'message': 'Song title is too short!'}) 
@@ -42,7 +59,16 @@ def home():
         if existing_song:
             return jsonify({'success': False, 'message': 'Song is already in the library.'})
         else:
-            new_song = Song(title=title, artist=artist, og_key=og_key, user_id = current_user.id)
+            new_song = Song(
+                title=title,
+                artist=artist,
+                og_key=og_key,
+                tempo=tempo, 
+                singer_type=singer_type,
+                holiday=holiday,
+                user_id = current_user.id,
+                pdf_url=pdf_url
+                )
             db.session.add(new_song)
             db.session.commit()
             return jsonify({'success': True, 'message': 'Song Added!'})
@@ -63,7 +89,7 @@ def home():
         song_query = song_query.order_by(Song.title.asc())
 
     songs = song_query.all()
-
+    serialized_songs = [serialize_song(song) for song in songs]
 
 
 
@@ -80,7 +106,9 @@ def home():
         sundays=sundays,
         setlist_songs=setlist_songs,
         songs=songs,
-        current_sort=sort_by
+        songs_json=serialized_songs,
+        current_sort=sort_by,
+        zip=zip
         )
 
 @views.route('/delete-song', methods=['POST'])
@@ -167,7 +195,10 @@ def add_to_setlist(song_id, setlist_date):
                         'id': song.id,
                         'title': song.title,
                         'artist': song.artist,
-                        'og_key': song.og_key
+                        'og_key': song.og_key,
+                        'tempo' : song.tempo,
+                        'holiday' : song.holiday,
+                        'singer_type' : song.singer_type
                     } 
                     })
 
@@ -219,20 +250,42 @@ def edit_song (song_id):
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
     
     # Get updated data from request form
-    data = request.get_json()
-    if not data:
-        return jsonify({'success': False, 'message': 'No data provided'}), 400
-    
-    title = data.get('title')
-    artist = data.get('artist')
-    og_key = data.get('og_key')
+    title = request.form.get('title')
+    artist = request.form.get('artist')
+    og_key = request.form.get('og_key')
+    tempo = request.form.get('tempo')
+    singer_type = request.form.get('singer_type')
+    holiday = request.form.get('holiday')
+    file = request.files.get('pdf_file')
 
+    if request.form.get('delete_pdf') == 'true' and song.pdf_url:
+        try:
+            full_path = os.path.join(current_app.root_path, song.pdf_url.lstrip('/'))
+            if os.path.exists(full_path):
+                os.remove(full_path)
+        except:
+            pass
+        song.pdf_url = None
+
+
+    if file and file.filename.endswith('.pdf'):
+        raw_name = f"{title}_{artist}".replace(" ", "_")
+        filename = secure_filename(raw_name)[:50] + ".pdf"  # truncate + sanitize
+        save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(save_path)
+        song.pdf_url = f"/static/chords/{filename}"
+    
     if not title or not artist or og_key not in music_keys:
         return jsonify({'success': False, 'message': 'Invalid Data'})
     
     song.title = title
     song.artist = artist
     song.og_key = og_key
+    song.tempo = tempo
+    song.singer_type = singer_type
+    song.holiday = holiday
+
+    
 
     db.session.commit()
 
@@ -258,6 +311,22 @@ def update_setlist_order():
         link = SetlistSong.query.filter_by(setlist_id=setlist.id, song_id=song_id).first()
         if link:
             link.position = position
+
+
+
     db.session.commit()
     return jsonify({'success': True, 'message': 'Order updated successfully'})
 
+# Helper function to serialize each song
+
+def serialize_song(song):
+    return {
+        'id': song.id,
+        'title': song.title,
+        'artist': song.artist,
+        'og_key': song.og_key,
+        'tempo': song.tempo,
+        'singer_type': song.singer_type,
+        'holiday': song.holiday,
+        'pdf_url': song.pdf_url if hasattr(song, 'pdf_url') else ''
+    }

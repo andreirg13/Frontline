@@ -11,6 +11,15 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = "Psalm8410$!"
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+
+    import os
+
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'website', 'static', 'chords')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # make sure folder exists
+
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max
+    
     db.init_app(app)
 
     
