@@ -1,0 +1,17 @@
+# === Python build files ===
+__pycache__/
+*.pyc
+
+# === Local development database ===
+instance/
+*.sqlite
+
+# === Virtual environment ===
+venv/
+
+# === Environment variables / secrets ===
+.env
+
+# === System junk files (safe to ignore everywhere) ===
+.DS_Store
+Thumbs.db
