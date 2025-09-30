@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from sqlalchemy.sql import func
 from datetime import date
 
+
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150))
@@ -17,7 +18,11 @@ class Song(db.Model):
     singer_type = db.Column(db.String(10)) # 'Male' or 'Female'
     holiday = db.Column(db.String(20))  # 'Christmas', 'Easter', 'Palm Sunday' etc.
     
-    pdf_url = db.Column(db.String(300))
+    sheet_data = db.Column(
+        db.JSON,
+        nullable=False,
+        default=lambda: {"lines": []}
+    )
 
 
 

@@ -13,7 +13,6 @@ with app.app_context():
             title=row['title'].strip(),
             artist=row['artist'].strip(),
             og_key=row['og_key'].strip(),
-            pdf_url=row['pdf_url'].strip(),
             user_id=1
             )
             db.session.add(song)

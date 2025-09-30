@@ -27,9 +27,35 @@ function getSelectedDate() {
     return select ? select.value : null;
 }
 
+// Make this function global
+function makeSetlistItemsDraggable() {
+    const setlistItems = document.querySelectorAll('.setlist-item');
+    setlistItems.forEach(item => {
+        item.draggable = true;
+        
+        item.removeEventListener('dragstart', item._dragstartHandler);
+        
+        item._dragstartHandler = (e) => {
+            console.log("Dragging item with dataset.id:", item.dataset.id);
+            
+            dragData = {
+                songId: item.dataset.id,
+                source: 'setlist'
+            };
+            
+            e.dataTransfer.setData('text/plain', item.dataset.id);
+            e.dataTransfer.setData('text/source', 'setlist');
+        };
+        
+        item.addEventListener('dragstart', item._dragstartHandler);
+    });
+}
+
+// Also make dragData global
+let dragData = {};
 
 function addToSetlist(songId, setlistDate) {
-    console.log("setlist date is: ", setlistDate)
+    console.log("songId parameter:", songId, "type:", typeof songId);
     const date = getSelectedDate();
     const upcomingSunday = getThisSundayDate();
 
@@ -37,7 +63,7 @@ function addToSetlist(songId, setlistDate) {
         method: 'POST',
     }).then(res => res.json())
         .then(data => {
-        showToast(data.message);  // e.g., "Song added to setlist"
+        showToast(data.message);
 
         if(data.success) {
             if (setlistDate === upcomingSunday) {
@@ -49,10 +75,20 @@ function addToSetlist(songId, setlistDate) {
                 <div class="sb-song-title">${data.song.title}</div>
                 <div class="sb-song-artist">${data.song.artist}</div>
                 `;
+                // Set data-id AFTER innerHTML
+                newItem.setAttribute('data-id', songId);
+                
+                console.log("Setting data-id to:", songId);
+                console.log("New item after setting data-id:", newItem.dataset.id);
+                
                 setlistSidebar.appendChild(newItem);
-    }
-}
-}
+                
+                setTimeout(() => {
+                    makeSetlistItemsDraggable();
+                }, 100);
+            }
+        }
+        }
     })
     .catch(error => {
         console.error('Error adding to setlist', error);
@@ -148,12 +184,12 @@ function deleteFromSetlist(songId, setlistDate) {
     })
     .then(res => res.json())
     .then(data => {
-        showToast(data.message);  // e.g., "Song added to setlist"
+        showToast(data.message); 
         console.log(data.message)
         location.reload();
     })
     .catch(error => {
-        console.error('Error deleting to setlist', error);
+        console.error('Error deleting from setlist', error);
     })
 };
 
@@ -167,8 +203,6 @@ function initDropdownMenus() {
         // Remove old listeners by replacing the node
         const clone = btn.cloneNode(true);
         btn.replaceWith(clone);
-
-        console.log(`🔄 Rebinding dropdown [${index}]`);
 
         clone.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -354,21 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /*document.querySelectorAll('.dropdown-toggle-btn').forEach(button => {
-    const menu = button.nextElementSibling;
-
-    button.addEventListener("click", (e) => {
-        e.stopPropagation();
-        document.querySelectorAll(".dropdown-menu").forEach(m => {
-            if (m !== menu) m.classList.remove("show");
-        });
-        menu.classList.toggle("show");
-    });
-
-    menu.addEventListener("click", (e) => {
-        e.stopPropagation();
-    });
-});*/
+    
 
 
     document.addEventListener("click", () => {
@@ -380,54 +400,140 @@ document.addEventListener("DOMContentLoaded", () => {
 
     
 
-    
-
     if (songListItems.length > 0) {
-    songListItems.forEach(item => {
-    item.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', item.dataset.id);
-    });
-    });
+        songListItems.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', item.dataset.id);
+        });
+        });
     }
+const setlistDate = getThisSundayDate();
+console.log(setlistDate);
 
-    const setlistDate = getThisSundayDate();
-    console.log(setlistDate)
-    const sidebar_drop = document.querySelector('.sidebar'); // ← FULL sidebar as drop zone
-    const setlist = document.getElementById('sb-setlist');
+const sidebar_drop = document.querySelector('.sidebar'); // ← FULL sidebar as drop zone
+const setlist = document.getElementById('sb-setlist');
+const main_area = document.querySelector('.main') || document.querySelector('main') || document.querySelector('#main'); // Adjust selector as needed
 
-    if (sidebar_drop && setlist) {
+
+
+// Add to setlist functionality (your existing function, assuming it exists)
+if (sidebar_drop && setlist) {
     sidebar_drop.addEventListener('dragover', (e) => {
         e.preventDefault();
     });
 
     sidebar_drop.addEventListener('drop', (e) => {
         e.preventDefault();
-        const songId = e.dataTransfer.getData('text/plain');
-        console.log("dropped the date: ", setlistDate)
-        addToSetlist(songId, setlistDate); // Will still append to #sb-setlist
-    });
-    }
-
-
-    new Sortable(document.getElementById('sb-setlist'), {
-        animation: 150,
-        onEnd: function () {
-            const newOrder = [...document.querySelectorAll('.setlist-item')]
-                .map(el => el.dataset.id);
-            const setlistDate = getThisSundayDate();
-            fetch('/update_setlist_order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    song_ids: newOrder,
-                    setlist_date: setlistDate
-                })
-            })
-            .then(res=>res.json())
-            .then(data => console.log(data.message))
-            .catch(err => console.error('Failed to update order:', err));
+        // Try global variable first, then dataTransfer
+        const songId = dragData.songId || e.dataTransfer.getData('text/plain');
+        const source = dragData.source || e.dataTransfer.getData('text/source');
+        
+        // Only add to setlist if it's coming from the main song library, not from setlist itself
+        if (source !== 'setlist') {
+            console.log("dropped the date: ", setlistDate);
+            addToSetlist(songId, setlistDate); // Will still append to #sb-setlist
         }
+        
+        // Clear drag data
+        dragData = {};
     });
+}
+
+// Delete from setlist functionality
+if (main_area && setlist) {
+    main_area.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        // Optional: Add visual feedback
+        main_area.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+    });
+
+    main_area.addEventListener('dragleave', (e) => {
+        // Remove visual feedback when leaving
+        main_area.style.backgroundColor = '';
+    });
+
+    main_area.addEventListener('drop', (e) => {
+        e.preventDefault();
+        main_area.style.backgroundColor = ''; // Remove visual feedback
+        
+        // Try global variable first, then dataTransfer
+        const songId = dragData.songId || e.dataTransfer.getData('text/plain');
+        const source = dragData.source || e.dataTransfer.getData('text/source');
+        
+        console.log("Drop - songId from global/dataTransfer:", songId);
+        console.log("Drop - source:", source);
+        
+        // Only delete if it's coming from the setlist
+        if (source === 'setlist' && songId) {
+            console.log("Removing song from setlist:", songId);
+            console.log("Setlist date:", setlistDate);
+            console.log("Full URL will be:", `/delete-from-setlist/${songId}/${setlistDate}`);
+            removeFromSetlist(songId, setlistDate);
+        }
+        
+        // Clear drag data
+        dragData = {};
+    });
+}
+
+
+function removeFromSetlist(songId, setlistDate) {
+    // Ensure songId is an integer and date is in correct format
+    const songIdInt = parseInt(songId);
+    const url = `/delete-from-setlist/${songIdInt}/${setlistDate}`;
+    console.log("Making request to:", url);
+    console.log("Song ID (as int):", songIdInt, "Date:", setlistDate);
+    
+    fetch(url, {
+        method: 'POST',
+    })
+    .then(res => {
+        console.log("Response status:", res.status);
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    })
+    .then(data => {
+        showToast(data.message); 
+        console.log(data.message);
+        // Remove the item from the DOM instead of reloading
+        const itemToRemove = document.querySelector(`.setlist-item[data-id="${songId}"]`);
+        if (itemToRemove) {
+            itemToRemove.remove();
+        }
+        // Don't reload the page for drag-and-drop (better UX)
+        // location.reload(); 
+    })
+    .catch(error => {
+        console.error('Error deleting from setlist', error);
+        console.error('Failed URL was:', url);
+    });
+}
+
+// Sortable functionality (your existing code)
+new Sortable(document.getElementById('sb-setlist'), {
+    animation: 150,
+    onEnd: function () {
+        const newOrder = [...document.querySelectorAll('.setlist-item')]
+            .map(el => el.dataset.id);
+        const setlistDate = getThisSundayDate();
+        fetch('/update_setlist_order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                song_ids: newOrder,
+                setlist_date: setlistDate
+            })
+        })
+        .then(res => res.json())
+        .then(data => console.log(data.message))
+        .catch(err => console.error('Failed to update order:', err));
+    }
+});
+
+// Make sure to call this when setlist items are added/updated
+makeSetlistItemsDraggable();
 
 
 
@@ -520,6 +626,8 @@ document.querySelectorAll('.song-row').forEach(songEl => {
     openSongModal(songData);
   });
 });
+
+
 
 
 });

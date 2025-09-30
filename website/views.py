@@ -1,12 +1,11 @@
-from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, current_app
+from flask import Blueprint, render_template, request, jsonify, current_app, url_for
+from flask_login import login_required, current_user
 from sqlalchemy import func
-from flask_login import  login_required, current_user
-from .models import Song, User, Setlist, SetlistSong
-from . import db
-import json
 from datetime import date, timedelta, datetime
 from werkzeug.utils import secure_filename
-import os
+import os, json
+
+from .models import db, Song, User, Setlist, SetlistSong
 
 
 views = Blueprint('views', __name__)
@@ -144,6 +143,46 @@ def viewSetlist():
 
     return render_template("setlist.html", setlists = all_setlists, this_week = this_weeks_setlist, user=current_user,layout_class = "auth-container", sundays=sundays)
     
+@views.route('/songsheetMaker')
+@login_required
+def pickSheetSong():
+    songs = Song.query.filter_by(user_id=current_user.id).order_by(Song.title).all()
+    return render_template("sheet_picker.html", songs=songs)
+
+@views.get('/songs/<int:id>/songsheetMaker')
+@login_required
+def songsheet_maker(id):
+    song = Song.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+    # pull chordpro from your JSON column (and migrate if old format exists)
+    chordpro = ''
+    data = song.sheet_data or {}
+    if isinstance(data, dict) and 'chordpro' in data:
+        chordpro = data.get('chordpro') or ''
+    elif isinstance(data, dict) and 'blocks' in data:
+        # if you previously saved Editor.js blocks, try to extract the old chordsheet block
+        try:
+            blk = next((b for b in data['blocks'] if b.get('type') == 'chordsheet'), None)
+            chordpro = (blk or {}).get('data', {}).get('text','')
+        except Exception:
+            chordpro = ''
+    sheet = {"id": song.id, "title": song.title, "artist": song.artist, "song_key": song.og_key}
+    return render_template('songsheet_maker.html', sheet=sheet, chordpro=chordpro)
+
+@views.post('/songs/<int:id>/songsheetMaker/save')
+@login_required
+def songsheet_save(id):
+    song = Song.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+    p = request.get_json(force=True)
+
+    if p.get('title')  is not None: song.title  = p['title']
+    if p.get('artist') is not None: song.artist = p['artist']
+    if p.get('key')    is not None: song.og_key = p['key']
+
+    song.sheet_data = {'chordpro': p.get('chordpro','')}
+    db.session.commit()
+    return jsonify(ok=True)
+
+    
 
 @views.route('/add_to_setlist/<int:song_id>/<string:setlist_date>', methods = ['POST'])
 @login_required
@@ -225,7 +264,6 @@ def delete_from_setlist(song_id,setlist_date):
         db.session.commit()
         return jsonify({'message': 'Song removed from setlist'})
     return jsonify({'success': True, 'message': 'Song removed from setlist'}), 200
-
 
 
 def get_sundays(num_weeks_before=6, num_weeks_after=10):
@@ -330,3 +368,4 @@ def serialize_song(song):
         'holiday': song.holiday,
         'pdf_url': song.pdf_url if hasattr(song, 'pdf_url') else ''
     }
+

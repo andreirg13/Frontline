@@ -1,0 +1,80 @@
+/* ----- scope everything to the editor page ----- */
+.songsheet-page .sheet-wrap{
+  width: min(92vw, 900px);
+  margin: 16px auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  color: #111;
+}
+
+/* optional dark backdrop just for the editor page */
+.songsheet-page{
+  padding-bottom: 40px;
+}
+
+/* Title + meta */
+.songsheet-page .song-title{
+  font-size: 28px;
+  font-weight: 700;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+.songsheet-page .song-meta{
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin: 10px 0 14px;
+  min-width: 0;
+}
+
+/* Toolbar */
+.songsheet-page #chord-toolbar{
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fafafa;
+  overflow-x: auto;
+}
+.songsheet-page #chord-toolbar .help{
+  font-size: 13px; color: #666; margin-bottom: 6px;
+}
+.songsheet-page #chord-toolbar .toolbar-row{
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+.songsheet-page #roots{ display: flex; flex-wrap: wrap; gap: 6px; }
+.songsheet-page .btn-root,
+.songsheet-page .btn-small{
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.songsheet-page .quals{
+  margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.songsheet-page .shortcut-note{ margin-top: 6px; font-size: 12px; color: #777; }
+
+/* Textarea + preview */
+.songsheet-page #chordpro{
+  width: 100%; max-width: 100%; min-height: 200px;
+  font-family: ui-monospace, Consolas, Menlo, monospace;
+  padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;
+}
+.songsheet-page .preview-label{ margin-top: 10px; color: #666; }
+.songsheet-page #preview{
+  margin-top: 6px; padding: 12px;
+  border: 1px solid #e4e4e4; border-radius: 6px; background: #fafafa;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* Save */
+.songsheet-page .save-row{ text-align: center; margin-top: 16px; }
+.songsheet-page .save-btn{
+  background: #652C2F; color: #fff; border: 0; padding: 10px 20px; border-radius: 6px;
+}
