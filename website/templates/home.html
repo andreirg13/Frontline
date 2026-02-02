@@ -56,6 +56,8 @@
             <button class="filter-btn" data-group="holiday" data-value="Christmas">Christmas</button>
             <button class="filter-btn" data-group="holiday" data-value="Easter">Easter</button>
             <button class="filter-btn" data-group="holiday" data-value="Palm Sunday">Palm Sunday</button>
+            <button class="filter-btn" data-group="holiday" data-value="Communion">Communion</button>
+            <button class="filter-btn" data-group="holiday" data-value="Baptism">Baptism</button>
         </div>
         </div>
 
@@ -71,7 +73,6 @@
             <ul class="list-group mb-4" id="songList">
                 {% for song, sjson in zip(songs, songs_json) %}
                     <li class="list-group-item d-flex justify-content-between align-items-center song-row"
-                        draggable="true"
                         data-id="{{ song.id }}"
                         data-tempo="{{ song.tempo|default('') }}"
                         data-singer="{{ song.singer_type|default('') }}"
@@ -105,8 +106,7 @@
                                     {{ song.og_key|tojson }},
                                     {{ song.tempo|default("")|tojson }},
                                     {{ song.singer_type|default("")|tojson }},
-                                    {{ song.holiday|default("")|tojson }},
-                                    {{ song.pdf_url|default("")|tojson }})'
+                                    {{ song.holiday|default("")|tojson }}'
 
                                     >Edit</a>
                                 </li>
@@ -180,18 +180,10 @@
                 <option value="Palm Sunday">Palm Sunday</option>
                 <option value="Thanksgiving">Thanksgiving</option>
                 <option value="Baptism">Baptism</option>
+                <option value="Communion">Communion</option>
             </select>
 
-            <label for="pdf_file">Chord Sheet (PDF)</label>
-            <input type="file" name="pdf_file" id="pdf_file" accept="application/pdf">
-            <div id="pdfPreview"></div>
-
-            <div class="form-check mt-2">
-                <input class="form-check-input" type="checkbox" value="true" id="delete_pdf" name="delete_pdf">
-                <label class="form-check-label" for="delete_pdf" style="color:white;">
-                    Remove existing chord sheet
-                </label>
-            </div>
+          
 
             <button id="submitBtn" type="submit">Add Song</button>
         </form>
@@ -203,15 +195,18 @@
   <div class="custom-modal-content">
     <div style="display: flex; justify-content: space-between; align-items: center;">
     <h2 id="modalSongTitle" style="margin: 0;">Song Title</h2>
-
         <div>
-            <button onclick="openFakeFullscreen(currentPdfUrl)" style="background: none; border: none; color: white; font-size: 1.2rem; margin-right: 0.5rem; cursor: pointer;">⛶</button>
-
+           
 
             <!-- Close button -->
             <button onclick="closeSongModal()" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">✕</button>
+            
         </div>
     </div>
+
+    <a href="#" id="viewChordSheetLink" class="btn-view-sheet">
+        View Chord Sheet
+    </a>
 
     
 
@@ -221,17 +216,10 @@
     <p><strong>Singer Type:</strong> <span id="modalSinger"></span></p>
     <p><strong>Theme:</strong> <span id="modalTheme"></span></p>
 
-    <div style="margin-top: 1.5rem;">
-      <iframe id="songPdfViewer" style="width: 100%; height: 65vh; border: none;"></iframe>
-    </div>
   </div>
 </div>
 
 
-<!-- Fake Fullscreen PDF Overlay -->
-<div id="pdfFullscreenOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999;">
-  <button onclick="closeFakeFullscreen()" style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; background: none; border: none; color: white; cursor: pointer;">✕</button>
-  <iframe id="fullscreenPdf" src="" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
+
 
 {% endblock %}

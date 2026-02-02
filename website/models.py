@@ -3,7 +3,6 @@ from flask_login import UserMixin
 from sqlalchemy.sql import func
 from datetime import date
 
-
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150))
@@ -17,12 +16,8 @@ class Song(db.Model):
     tempo = db.Column(db.String(20)) # e.g. 'Fast', 'Slow'
     singer_type = db.Column(db.String(10)) # 'Male' or 'Female'
     holiday = db.Column(db.String(20))  # 'Christmas', 'Easter', 'Palm Sunday' etc.
+    sheet_data = db.Column(db.Text, nullable=True)
     
-    sheet_data = db.Column(
-        db.JSON,
-        nullable=False,
-        default=lambda: {"lines": []}
-    )
 
 
 
@@ -30,8 +25,8 @@ class Song(db.Model):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True)
-    password = db.Column(db.String(150))
+    email = db.Column(db.String(150), unique=True, nullable = False)
+    password = db.Column(db.String(150), nullable = False)
     first_name = db.Column(db.String(150))
     song = db.relationship('Song')
 

@@ -78,3 +78,54 @@
 .songsheet-page .save-btn{
   background: #652C2F; color: #fff; border: 0; padding: 10px 20px; border-radius: 6px;
 }
+
+.picker-search {
+  width: 100%;
+  display: flex;
+  justify-content: left;
+  margin-top: 20px;
+  margin-bottom: 0px;
+}
+
+.picker-input {
+  display: flex;
+    align-items: center;
+    background-color: #444343;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 100%;
+    flex: 1;
+    max-width: 600px;
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #444343;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  flex: 1;
+  max-width: 600px;
+}
+
+.search-icon {
+  color: #ccc;
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+#searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 15px;
+}
+
+
+.picker-item:hover{
+  background-color: #3b3b3b;
+  color: #ffffff;
+}

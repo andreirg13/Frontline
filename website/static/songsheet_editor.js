@@ -316,6 +316,28 @@ keyInput?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') { e.preventDefault(); applyTypedKey(); }
 });
 
+cp.addEventListener('paste', (e) => {
+  setTimeout(() => {
+    const text = cp.value;
+    const detectedKey = detectKeyFromChords(text);
+    if (detectedKey && keyInput) {
+      keyInput.value = detectedKey;
+      BASE_KEY = detectedKey;
+      buildPaletteForKey(BASE_KEY);
+    }
+    renderPreview();
+  }, 10);
+});
+
+function detectKeyFromChords(text) {
+  // Extract all chords from brackets
+  const chords = [...text.matchAll(/\[([A-G][#b]?)(m|maj7|7|sus4|sus|dim)?\]/g)].map(m=>m[1] + (m[2] === 'm' ? 'm' : ''));
+
+  if (chords.length === 0) return null;
+
+  return chords[0];
+};
+
   // Initial
   buildChordPaletteForKey(BASE_KEY);
   renderPreview();
@@ -335,4 +357,15 @@ keyInput?.addEventListener('keydown', (e) => {
       alert(res.ok ? 'Saved' : 'Save failed');
     }catch{ alert('Save failed'); }
   });
+
+
+  document.getElementById("chordpro").addEventListener("keydown", function(e) {
+    if (e.key == "Tab") {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+        this.selectionStart = this.selectionEnd + 1;
+    }
+});
 });

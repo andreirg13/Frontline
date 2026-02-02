@@ -2,6 +2,8 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
 SQLITE_PATH = os.path.join(INSTANCE_DIR, "database.db")
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 class Base:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-insecure")

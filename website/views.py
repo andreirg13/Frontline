@@ -4,7 +4,6 @@ from sqlalchemy import func
 from datetime import date, timedelta, datetime
 from werkzeug.utils import secure_filename
 import os, json
-
 from .models import db, Song, User, Setlist, SetlistSong
 
 
@@ -29,14 +28,7 @@ def home():
             tempo = data.get('tempo')
             singer_type = data.get('singer_type')
             holiday = data.get('holiday')
-            file = request.files.get('pdf_file')
-            pdf_url = ''
 
-            if file and file.filename.endswith('.pdf'):
-                filename = secure_filename(f"{title}_{artist}.pdf").replace(" ", "_")
-                save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-                file.save(save_path)
-                pdf_url = f"/static/chords/{filename}"
         else:
             title = request.form.get('title')
             artist = request.form.get('artist')
@@ -65,8 +57,7 @@ def home():
                 tempo=tempo, 
                 singer_type=singer_type,
                 holiday=holiday,
-                user_id = current_user.id,
-                pdf_url=pdf_url
+                user_id = current_user.id
                 )
             db.session.add(new_song)
             db.session.commit()
@@ -153,22 +144,11 @@ def pickSheetSong():
 @login_required
 def songsheet_maker(id):
     song = Song.query.filter_by(id=id, user_id=current_user.id).first_or_404()
-    # pull chordpro from your JSON column (and migrate if old format exists)
-    chordpro = ''
-    data = song.sheet_data or {}
-    if isinstance(data, dict) and 'chordpro' in data:
-        chordpro = data.get('chordpro') or ''
-    elif isinstance(data, dict) and 'blocks' in data:
-        # if you previously saved Editor.js blocks, try to extract the old chordsheet block
-        try:
-            blk = next((b for b in data['blocks'] if b.get('type') == 'chordsheet'), None)
-            chordpro = (blk or {}).get('data', {}).get('text','')
-        except Exception:
-            chordpro = ''
+    
     sheet = {"id": song.id, "title": song.title, "artist": song.artist, "song_key": song.og_key}
-    return render_template('songsheet_maker.html', sheet=sheet, chordpro=chordpro)
+    return render_template('songsheet_maker.html', sheet=sheet, chordpro=song.sheet_data)
 
-@views.post('/songs/<int:id>/songsheetMaker/save')
+@views.route('/songsheet/<int:id>/save', methods=['POST'])
 @login_required
 def songsheet_save(id):
     song = Song.query.filter_by(id=id, user_id=current_user.id).first_or_404()
@@ -178,11 +158,29 @@ def songsheet_save(id):
     if p.get('artist') is not None: song.artist = p['artist']
     if p.get('key')    is not None: song.og_key = p['key']
 
-    song.sheet_data = {'chordpro': p.get('chordpro','')}
+    song.sheet_data = p.get('chordpro', '')  # Store as string, not dict
+
+    print(f"SAVED - Song ID: {id}, Sheet data length: {len(song.sheet_data)}")
+    
     db.session.commit()
     return jsonify(ok=True)
 
-    
+@views.route('/api/songs/<int:id>') 
+@login_required
+def get_song(id):
+    song = Song.query.filter_by(id=id, user_id=current_user).first_or_404()
+    return jsonify ({
+        'id': song.id,
+        'title': song.title,
+        'artist': song.artist,
+        'sheet_data': song.sheet_data or ''
+    })
+
+@views.route('/songs/<int:id>/view')
+@login_required
+def view_songsheet(id):
+    song = Song.query.filter_by(id=id, user_id=current_user.id).first_or_404()
+    return render_template('songsheet_view.html', song=song)
 
 @views.route('/add_to_setlist/<int:song_id>/<string:setlist_date>', methods = ['POST'])
 @login_required
@@ -265,17 +263,6 @@ def delete_from_setlist(song_id,setlist_date):
         return jsonify({'message': 'Song removed from setlist'})
     return jsonify({'success': True, 'message': 'Song removed from setlist'}), 200
 
-
-def get_sundays(num_weeks_before=6, num_weeks_after=10):
-    today = date.today()
-
-    recent_sunday = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
-
-    sundays = []
-    for i in range(-num_weeks_before, num_weeks_after + 1):
-        sundays.append(recent_sunday + timedelta(weeks=i))
-    return sundays
-
 @views.route('/edit-song/<int:song_id>', methods = ['POST'])
 @login_required
 def edit_song (song_id):
@@ -294,24 +281,9 @@ def edit_song (song_id):
     tempo = request.form.get('tempo')
     singer_type = request.form.get('singer_type')
     holiday = request.form.get('holiday')
-    file = request.files.get('pdf_file')
 
-    if request.form.get('delete_pdf') == 'true' and song.pdf_url:
-        try:
-            full_path = os.path.join(current_app.root_path, song.pdf_url.lstrip('/'))
-            if os.path.exists(full_path):
-                os.remove(full_path)
-        except:
-            pass
-        song.pdf_url = None
+   
 
-
-    if file and file.filename.endswith('.pdf'):
-        raw_name = f"{title}_{artist}".replace(" ", "_")
-        filename = secure_filename(raw_name)[:50] + ".pdf"  # truncate + sanitize
-        save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-        file.save(save_path)
-        song.pdf_url = f"/static/chords/{filename}"
     
     if not title or not artist or og_key not in music_keys:
         return jsonify({'success': False, 'message': 'Invalid Data'})
@@ -331,7 +303,10 @@ def edit_song (song_id):
         'id': song.id,
         'title': song.title,
         'artist': song.artist,
-        'og_key': song.og_key
+        'og_key': song.og_key,
+        'tempo' : song.tempo,
+        'singer_type' : song.singer_type,
+        'holiday' : song.holiday
     }})
 
 @views.route('/update_setlist_order', methods = ['POST'])
@@ -356,7 +331,6 @@ def update_setlist_order():
     return jsonify({'success': True, 'message': 'Order updated successfully'})
 
 # Helper function to serialize each song
-
 def serialize_song(song):
     return {
         'id': song.id,
@@ -365,7 +339,15 @@ def serialize_song(song):
         'og_key': song.og_key,
         'tempo': song.tempo,
         'singer_type': song.singer_type,
-        'holiday': song.holiday,
-        'pdf_url': song.pdf_url if hasattr(song, 'pdf_url') else ''
+        'holiday': song.holiday
     }
 
+def get_sundays(num_weeks_before=6, num_weeks_after=10):
+    today = date.today()
+
+    recent_sunday = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
+
+    sundays = []
+    for i in range(-num_weeks_before, num_weeks_after + 1):
+        sundays.append(recent_sunday + timedelta(weeks=i))
+    return sundays

@@ -4,6 +4,11 @@
             box-sizing: border-box;
         }
 
+        .chord-display,
+        #chordSheetDisplay,
+        #chordSheetDisplay * {
+            font-family: Arial, Helvetica, sans-serif !important;
+        }
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -137,7 +142,7 @@
 
         .block-chord .block-content {
             font-family: 'Courier New', Consolas, monospace;
-            font-size: 14px;
+            font-size: 13px;
             color: #2563eb;
             font-weight: 600;
             white-space: pre;
@@ -146,7 +151,7 @@
         }
 
         .block-lyric .block-content {
-            font-size: 16px;
+            font-size: 12px;
             color: #333;
             line-height: 1.5;
             margin-bottom: 2px;
@@ -353,39 +358,322 @@
   overflow-x: auto; /* long lines can scroll horizontally */
 }
 
-/* ChordSheetJS output */
-.songsheet-page #preview .chordSheetViewer{
-  font-family: ui-monospace, Consolas, Menlo, monospace;
-}
+#preview .chord-sheet {
+    font-family: ui-monospace, Consolas, Menlo, monospace;
+    line-height: 1.6;
+  }
+  
+  #preview .row {
+    display: flex !important;
+    margin-bottom: 0.5em;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    background: none !important;
+  }
+  
+  #preview .column {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 0;
+    position: relative;
+  }
+  
+  #preview .chord {
+    color: #2563eb; 
+    font-weight: bold;
+    font-size: 0.9em;
+    display: block;
+    height: 1.2em;
+    line-height: 1.2em;
+    background: none !important;
+  }
+  
+  #preview .lyrics {
+    color: #333;
+    display: block;
+    white-space: pre;
+  }
+  
+  
+  #preview .paragraph {
+    margin-bottom: 1em;
+  }
 
-/* CRITICAL: neutralize Bootstrap's .row inside the viewer */
-.songsheet-page #preview .chordSheetViewer .row{
-  display: block !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  white-space: pre;      /* preserve spaces for alignment */
-  line-height: 1.6;
-  --bs-gutter-x: 0;      /* in case Bootstrap v5 vars leak */
-  --bs-gutter-y: 0;
-}
 
-/* Ensure chords and lyrics are on separate lines and not flex children */
-.songsheet-page #preview .chordSheetViewer .chords,
-.songsheet-page #preview .chordSheetViewer .lyrics{
-  display: block !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  color: inherit;
-}
-
-
-        .save-row{ text-align: center; margin-top: 16px; }
-        .save-btn{
+    .save-row{ text-align: center; margin-top: 16px; }
+    .save-btn{
         background: #652C2F;
         color: #fff;
         border: 0;
         padding: 10px 20px;
         border-radius: 6px;
-        }
+}
 
-        .songsheet-page .chord-inline { color: #2563eb; }
+    .songsheet-page .chord-inline { color: #2563eb; }
+
+    .player-container {
+        max-width: 1200px;
+        margin:20px auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        min-height: calc(100vh - 100px);
+    }
+
+    .player-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e5e5e5;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      
+      .song-info h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #111;
+        margin: 0 0 5px 0;
+      }
+      
+      .song-info .artist {
+        font-size: 18px;
+        color: #666;
+        margin: 0;
+      }
+      
+      .controls {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      
+      .key-display {
+        font-size: 18px;
+        font-weight: 600;
+        color: #111;
+      }
+      
+      .key-display span {
+        color: #2563eb;
+        font-size: 20px;
+      }
+      
+      .transpose-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .transpose-controls label {
+        font-weight: 500;
+        color: #666;
+      }
+      
+      .transpose-controls select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      
+      .btn-back {
+        padding: 8px 16px;
+        background: #652C2F;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+      
+      .btn-back:hover {
+        background: #5a292c;
+      }
+      
+      .chord-display {
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.2;
+        color: #111;
+        white-space: pre-wrap;
+      }
+      
+      .chord-display .chord-sheet .row {
+        display: flex !important;
+        margin-bottom: 0.3rem !important;
+      }
+
+      .chord-display .chord-sheet .column {
+        display:flex !important;
+        flex-direction: column !important;
+        min-width: fit-content;
+        margin-right: 0 !important;
+      }
+      
+
+
+
+      /* Make chords more prominent in player mode */
+      .chord-display .chord {
+        display: inline-block;
+        color: #2563eb;
+        font-weight: bold;
+        min-width: 1.2rem;
+        font-size:12px;
+        background: none !important;
+        padding: 0 !important;
+      }
+      
+      .chord-display .lyrics {
+        display: inline;
+        color: #111;
+        background: none !important;
+        padding: 0 !important;
+      }
+
+      .chord-display .paragraph {
+        margin-bottom: 1.5rem;
+      }
+
+      .chord-display .chord:empty::before {
+        content: "\00a0";
+      }
+     /* ===== PRINT TIGHTENING FOR THE CHORD SHEET ===== */
+     @media print {
+      @page { size: Letter; margin: 10mm; }
+    
+      /* NEW - hide only the controls, keep the title */
+      nav, .navbar, .transpose-controls, .btn-back, button, 
+      .player-header input, .player-header select, .player-header label {
+        display: none !important;
+      }
+
+      /* Show and style the header title */
+      .player-header {
+        display: block !important;
+        margin-bottom: 15px !important;
+      }
+
+      .player-header h1, .player-header .title {
+        font-size: 24px !important;  /* adjust size as needed */
+        margin: 0 0 8px 0 !important;
+        color: black !important;
+      }
+
+      .player-header .artist, .player-header .subtitle {
+        font-size: 14px !important;
+        color: #444 !important;
+        margin: 0 !important;
+      }
+    
+      .player-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        background: #fff !important;
+      }
+    
+      /* ===== TWO COLUMN LAYOUT ===== */
+      .chord-display {
+        column-count: 2;
+        column-gap: 20px;  /* space between columns */
+        column-rule: 1px solid #ddd;  /* optional divider line - remove if you don't want it */
+        column-fill: auto; 
+        font-size: 13px !important;
+        line-height: 1.2 !important;
+        color: black !important;
+      }
+    
+      .chord-display .paragraph,
+      .chord-display .row {
+        margin-bottom: 0.4rem !important;
+        /* Keep sections together when possible */
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    
+      .chord-display .comment {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+    
+      .chord-display .chord {
+        font-size: 0.9em !important;
+        line-height: 1.1 !important;
+        min-width: 0 !important;   
+        padding: 0 !important;
+        background: none !important;
+      }
+    
+      .chord-display .lyrics {
+        display: inline !important;
+        line-height: 1.2 !important;
+        white-space: pre-wrap !important;
+        background: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+    
+      /* Titles/subtitles - keep these in single column at top */
+      .song-info {
+        column-span: all;  /* makes title/artist span both columns */
+      }
+      
+      .song-info h1 { font-size: 18px !important; margin: 0 0 6px !important; }
+      .song-info .artist { font-size: 12px !important; margin: 0 0 12px !important; color: #444 !important; }
+    }
+
+
+/* To make it look like the print sheet */
+.chord-display.compact {
+  font-size: 12px;          /* was 16px */
+  line-height: 1.2;         /* was 2 */
+  color: #111;
+}
+
+.chord-display.compact .chord-sheet .row {
+  margin-bottom: 0.25rem;   /* tighten rows */
+}
+
+.chord-display.compact .paragraph {
+  margin-bottom: 0.5rem;    /* was 1.5rem */
+}
+
+.chord-display .comment,
+#chordSheetDisplay .comment {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-top: 10px;
+    display: block;
+}
+
+.chord-display.compact .chord {
+  font-size: 0.9em;
+  line-height: 1.1;
+  min-width: 0;
+  padding: 0;
+  background: none;
+}
+
+.chord-display.compact .lyrics {
+  display: inline;
+  line-height: 1.2;
+  white-space: pre;         /* keep alignment */
+  padding: 0;
+  margin: 0;
+}
+
+
+
+/* TEST */

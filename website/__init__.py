@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -16,15 +18,17 @@ def create_app():
     os.makedirs(app.instance_path, exist_ok=True)
 
     app.config.from_object(pick())
+    if app.config.get("SECRET_KEY") in (None, "", "dev-insecure"):
+        raise RuntimeError("SECRET_KEY is not set. Put SECRET_KEY=... in your .env")
 
     # If we're on SQLite, force an absolute path under instance/
     if (app.config.get("SQLALCHEMY_DATABASE_URI", "") or "").startswith("sqlite:///"):
         db_file = os.path.join(app.instance_path, "database.db")
         db_uri = "sqlite:///" + db_file.replace("\\", "/")  # <<< normalize for Windows
         app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
-        print("Using SQLite at:", app.config["SQLALCHEMY_DATABASE_URI"])
+        app.logger.info("Using SQLite at %s", app.config["SQLALCHEMY_DATABASE_URI"])
 
-    # uploads (unchanged)
+
     upload_folder = os.path.join(app.root_path, 'static', 'chords')
     os.makedirs(upload_folder, exist_ok=True)
     app.config['UPLOAD_FOLDER'] = upload_folder
@@ -56,8 +60,7 @@ def create_app():
 
 def create_sqlite(app):
     db_path = os.path.join(app.instance_path, "database.db")
-    os.makedirs(app.instance_path, exist_ok=True)
     if not os.path.exists(db_path):
         with app.app_context():
-            db.create_all()
-        print('Created Database at: ', db_path)
+            db.create_all()  # dev bootstrap only
+        app.logger.info("Created SQLite DB at %s", db_path)
