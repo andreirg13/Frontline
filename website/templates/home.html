@@ -1,5 +1,14 @@
 {% extends "base.html" %} {% block title %}Home{% endblock %}
 {%block content%}
+<!-- HERO SECTION -->
+<div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <p class="hero-tagline">ORGANIZE. PREPARE. LEAD.</p>
+        <h1 class="hero-title">Song Library</h1>
+        <p class="hero-subtitle">Your complete library for worship songs, keys, and moments that matter.</p>
+    </div>
+</div>
 <div class="sidebar">
     <h4>This Week's Setlist</h4>
     <div id="sb-setlist">
@@ -9,10 +18,13 @@
                 <div class="sb-song-title">{{ link.song.title }}</div>
                 <div class="sb-song-artist">{{ link.song.artist }}</div>
             </div>
+            <div class="sb-song-key">{{ link.song.og_key }}</div>
         </div>
         {% endfor %}
     </div>
 </div>
+
+
 
 <div class="main" id="mainView">
     <!-- RIGHT COLUMN -->
@@ -20,7 +32,6 @@
         <div class="main-header-grid">
   
         
-        <div class="grid-title">Song Library</div>
 
         <div class="grid-left">
             <div class="search-wrapper">

@@ -28,6 +28,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True, nullable = False)
     password = db.Column(db.String(150), nullable = False)
     first_name = db.Column(db.String(150))
+    role = db.Column(db.String(20), default='viewer') 
     song = db.relationship('Song')
 
 # Association Table

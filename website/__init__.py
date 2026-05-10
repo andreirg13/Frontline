@@ -6,13 +6,21 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
 from config import pick
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 import os
 
+
+
 db = SQLAlchemy()
+limiter = Limiter(get_remote_address, default_limits=["200 per day", "50 per hour"])
 DB_NAME = "database.db"
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
+
+    limiter.init_app(app)
 
     # Ensure instance/ exists for SQLite file creation
     os.makedirs(app.instance_path, exist_ok=True)
@@ -27,11 +35,6 @@ def create_app():
         db_uri = "sqlite:///" + db_file.replace("\\", "/")  # <<< normalize for Windows
         app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
         app.logger.info("Using SQLite at %s", app.config["SQLALCHEMY_DATABASE_URI"])
-
-
-    upload_folder = os.path.join(app.root_path, 'static', 'chords')
-    os.makedirs(upload_folder, exist_ok=True)
-    app.config['UPLOAD_FOLDER'] = upload_folder
 
     db.init_app(app)
 

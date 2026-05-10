@@ -1,53 +1,88 @@
-{% extends "base.html" %}
-{% block title %}Song Sheet Maker{% endblock %}
-
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='songsheet.css') }}">
-
+{% extends "base.html" %} {% block title %}Song Sheet Maker{% endblock %} {%
+block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='songsheet.css') }}"
+/>
 
 <div class="instructions">
   <strong>How to use:</strong> Put the whole song in <em>ChordPro</em> format.
-  Use the chord buttons or type shortcuts like <code>;g</code>, <code>;f#m</code>.
+  Use the chord buttons or type shortcuts like <code>;g</code>,
+  <code>;f#m</code>.
 </div>
 
 <div class="sheet-wrap">
-  <input type="text" class="song-title" value="{{ sheet.title }}" placeholder="Song Title">
+  <input
+    type="text"
+    class="song-title"
+    value="{{ sheet.title }}"
+    placeholder="Song Title"
+  />
 
   <div class="song-meta">
-    <div>Artist: <input type="text" class="artist-input" value="{{ sheet.artist }}"></div>
-    <div>Key: <input type="text" class="key-input" value="{{ sheet.song_key }}"></div>
-    <div>Transpose:
+    <div>
+      Artist:
+      <input type="text" class="artist-input" value="{{ sheet.artist }}" />
+    </div>
+    <div>
+      Key: <input type="text" class="key-input" value="{{ sheet.song_key }}" />
+    </div>
+    <div>
+      Transpose:
       <select id="transpose">
         <option value="0">Original</option>
-        <option value="-3">-3</option><option value="-2">-2</option><option value="-1">-1</option>
-        <option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
+        <option value="-3">-3</option>
+        <option value="-2">-2</option>
+        <option value="-1">-1</option>
+        <option value="1">+1</option>
+        <option value="2">+2</option>
+        <option value="3">+3</option>
       </select>
     </div>
   </div>
 
   <!-- Toolbar -->
   <div id="chord-toolbar">
-    <div class="help">Insert chord (click root, optional qualities, then click root):</div>
+    <div class="help">
+      Insert chord (click root, optional qualities, then click root):
+    </div>
     <div class="toolbar-row">
       <div id="roots"><!-- buttons injected by JS --></div>
       <div class="quals">
-        <label><input type="checkbox" id="q-m"> m</label>
-        <label><input type="checkbox" id="q-7"> 7</label>
-        <label><input type="checkbox" id="q-maj7"> maj7</label>
-        <label><input type="checkbox" id="q-sus4"> sus4</label>
-        <label><input type="checkbox" id="q-dim"> dim</label>
+        <label><input type="checkbox" id="q-m" /> m</label>
+        <label><input type="checkbox" id="q-7" /> 7</label>
+        <label><input type="checkbox" id="q-maj7" /> maj7</label>
+        <label><input type="checkbox" id="q-sus4" /> sus4</label>
+        <label><input type="checkbox" id="q-dim" /> dim</label>
         <button id="q-clear" type="button" class="btn-small">clear</button>
-        <button id="wrapSel" type="button" class="btn-small" title="Wrap selection with []">wrap selection</button>
+        <button
+          id="wrapSel"
+          type="button"
+          class="btn-small"
+          title="Wrap selection with []"
+        >
+          wrap selection
+        </button>
       </div>
     </div>
     <div class="shortcut-note">
-      Shortcuts: type <code>;g</code>, <code>;f#m</code>, <code>;bbmaj7</code> → auto becomes
-      <code>[G]</code>, <code>[F#m]</code>, <code>[Bbmaj7]</code>
+      Shortcuts: type <code>;g</code>, <code>;f#m</code>, <code>;bbmaj7</code> →
+      auto becomes <code>[G]</code>, <code>[F#m]</code>, <code>[Bbmaj7]</code> ·
+      <code>;1</code>–<code>;7</code> → diatonic chord for current key
     </div>
   </div>
 
   <!-- One textarea -->
-  <textarea id="chordpro" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"placeholder="[A]Blessed be Your [E]name">{{ chordpro or '' }}</textarea>
+  <textarea
+    id="chordpro"
+    autocapitalize="off"
+    autocomplete="off"
+    autocorrect="off"
+    spellcheck="false"
+    placeholder="[A]Blessed be Your [E]name"
+  >
+{{ chordpro or '' }}</textarea
+  >
 
   <div class="preview-label">Preview</div>
   <div id="preview"></div>
@@ -55,16 +90,23 @@
   <button id="applyTranspose" class="btn-small">Apply transpose to text</button>
 
   <div class="save-row">
-    <button id="saveBtn" class="save-btn"
-            data-save-url="{{ url_for('views.songsheet_save', id=sheet.id) }}">
+    <button
+      id="saveBtn"
+      class="save-btn"
+      data-save-url="{{ url_for('views.songsheet_save', id=sheet.id) }}"
+    >
       Save Song
     </button>
   </div>
 </div>
 
-<script defer src="{{ url_for('static', filename='vendor/bundle.min.js') }}"></script>
-<script defer src="{{ url_for('static', filename='songsheet_editor.js') }}"></script>
-
-
+<script
+  defer
+  src="{{ url_for('static', filename='vendor/bundle.min.js') }}"
+></script>
+<script
+  defer
+  src="{{ url_for('static', filename='songsheet_editor.js') }}"
+></script>
 
 {% endblock %}

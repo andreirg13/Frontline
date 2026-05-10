@@ -1,7 +1,18 @@
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #000000;
-    color: #eaeaea;
+  font-family: "Space Grotesk";
+  background-color: #000000;
+  color: #eaeaea;
+}
+* {
+  font-family: 'Space Grotesk', sans-serif;
+}
+#chordpro,
+.chord-display,
+#chordSheetDisplay,
+#chordSheetDisplay *,
+code,
+pre {
+  font-family: ui-monospace, Consolas, Menlo, monospace !important;
 }
 
 /* Hide scrollbars for all elements */
@@ -18,13 +29,13 @@ body {
 
 /* Card & inputs */
 .card {
-    background-color: #1e1e1e;
-    border: none;
-    color: #ffffff;
+  background-color: #1e1e1e;
+  border: none;
+  color: #ffffff;
 }
 
 .form-control::placeholder {
-    color: #aaaaaa;
+  color: #aaaaaa;
 }
 
 input:focus,
@@ -40,20 +51,20 @@ h1 {
 
 /* Single consolidated form-control rule */
 .form-control {
-  background-color: #1e1e1e;  /* dark input */
+  background-color: #1e1e1e; /* dark input */
   color: #fff;
   border: 1px solid #444;
 }
 
 .form-control:focus {
-  background-color: #1e1e1e;  /* keeps it dark on focus */
+  background-color: #1e1e1e; /* keeps it dark on focus */
   color: #fff;
-  border-color: #ffffff;      /* white border on focus */
+  border-color: #ffffff; /* white border on focus */
   box-shadow: none;
 }
 
 .btn-primary {
-  background-color: #652C2F; /* FAIBC Maroon */
+  background-color: #652c2f; /* FAIBC Maroon */
   border: none;
 }
 
@@ -61,8 +72,8 @@ h1 {
   background-color: #ab3027;
 }
 
-.song-library-title{
-    padding: .5rem 1rem;
+.song-library-title {
+  padding: 0.5rem 1rem;
 }
 
 .search-bar-container {
@@ -74,58 +85,63 @@ h1 {
 }
 
 .search-wrapper {
-    display: flex;
-    align-items: center;
-    background-color: #444343;
-    border-radius: 8px;
-    padding: 8px 12px;
-    width: 100%;
-    flex: 1;
-    max-width: 600px;
+  display: flex;
+  align-items: center;
+  background-color: #444343;
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  flex: 1;
+  max-width: 600px;
 }
 
 .search-icon {
-    color: #ccc;
-    font-size: 16px;
-    margin-right: 8px;
+  color: #ccc;
+  font-size: 16px;
+  margin-right: 8px;
 }
 
 #searchInput {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: white;
-    font-size: 15px;
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 15px;
 }
 
 .songHeader {
-    transition: opacity 0.2s ease, height 0.2s ease, margin 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    height 0.2s ease,
+    margin 0.2s ease;
 }
 
 .search-mode-container .songHeader {
-    transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .search-mode-container.focused .songHeader {
-    opacity: 0;
-    height: 0;
-    margin: 0;
-    overflow: hidden;
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  overflow: hidden;
 }
 
 .hidden {
-    display: none !important;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(10px);
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
 }
 
 .visible {
-    display: block !important;
-    opacity: 1;
-    pointer-events: auto;
-    transition: all 0.2s ease;
+  display: block !important;
+  opacity: 1;
+  pointer-events: auto;
+  transition: all 0.2s ease;
 }
 
 .song-library-header {
@@ -145,17 +161,17 @@ h1 {
 }
 
 .add-song-button {
-    background-color: #301416;
-    color: white;
-    padding: 10px 20px;
-    font-size: 15px;
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  background-color: #301416;
+  color: white;
+  padding: 10px 20px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .add-song-button:hover {
@@ -163,22 +179,22 @@ h1 {
 }
 
 .plus-icon {
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 1;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
 }
 
 #toggleBackBtn {
-    background-color: #652C2F;
-    color: white;
-    border:none;
-    font-weight: 500;
-    padding: 0.4rem 1.2rem;
-    transition: background-color .2s ease;
+  background-color: #652c2f;
+  color: white;
+  border: none;
+  font-weight: 500;
+  padding: 0.4rem 1.2rem;
+  transition: background-color 0.2s ease;
 }
 
 #toggleBackBtn:hover {
-    background-color: #8a2c2c;
+  background-color: #8a2c2c;
 }
 
 .dropdown-toggle-btn {
@@ -248,7 +264,7 @@ h1 {
   position: absolute;
   top: 12px;
   right: 20px;
-  height: 50px;        /* smaller height */
+  height: 50px; /* smaller height */
   width: auto;
   object-fit: contain;
   border-radius: 0.5rem;
@@ -263,15 +279,15 @@ h1 {
 .dropdown-menu {
   display: none;
   width: max-content;
-  padding: .5rem 0;
+  padding: 0.5rem 0;
   max-width: 200px;
   right: 0px;
   background-color: #1f1f1f;
   position: absolute;
   transform: none;
   overflow-wrap: break-word;
-  z-index:1000;
-  top:100%;
+  z-index: 1000;
+  top: 100%;
   overflow: visible;
   border: 1px solid #444;
   color: #080606;
@@ -287,7 +303,7 @@ h1 {
 
 .dropdown-item {
   display: block;
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   color: white;
   text-decoration: none;
 }
@@ -299,6 +315,13 @@ h1 {
 
 .dropdown {
   position: relative;
+}
+
+.navbar a, nav a {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .navbar a {
@@ -325,15 +348,21 @@ h1 {
 
 .home-container {
   display: grid;
-  grid-template-rows: 60px 1fr;
+  grid-template-rows: 60px 270px 1fr;
   grid-template-columns: 262px 1fr;
   grid-template-areas:
     "navbar navbar"
+    "hero hero"
     "sidebar main";
   height: 100vh;
-  background-color: #000000; /* outer bg color */
-  border-radius: 1rem;       /* outer corners */
-  grid-gap: .4rem .5rem;
+  background-color: #000000;
+  border-radius: 1rem;
+  grid-gap: 0.4rem 0.5rem;
+}
+
+.sidebar, .main {
+  z-index: 1;
+  position: relative;
 }
 
 .sidebar {
@@ -344,35 +373,99 @@ h1 {
   min-height: 300px; /* or height: 100vh for full height */
   max-height: 100vh;
   position: relative;
-  background: linear-gradient(to bottom, rgba(233, 233, 233, 0.726), rgba(82, 79, 79, 0.8));
+  background: linear-gradient(
+    to bottom,
+    rgba(30, 27, 24, 0.97),
+    rgba(20, 18, 16, 0.97)
+  );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+
+
 .sidebar h4 {
   font-size: 1.1rem;
   margin-bottom: 1rem;
   color: #ffffff;
-  padding-bottom: .5rem;
+  padding-bottom: 0.5rem;
+}
+
+
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.75));
+}
+.hero-section {
+  grid-area: hero;
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  background-image: url('/static/hero.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-start;
+  padding: 20px 40px;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.75));
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-tagline {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #c9a96e;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.hero-title {
+  font-size: 6rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+  font-weight: 300;
 }
 
 #sb-setlist {
-  list-style:none;
+  list-style: none;
   min-height: 100%;
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
 }
 
 .setlist-item {
-  position: relative;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 6px;
-  cursor: grab;
-  border-radius: 2mm;
-  background: rgba(10, 7, 7, 0.842);
-  margin: 10px 0;
-  padding: 1rem;
-  transition: all 0.1s ease-in-out;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border-left: 3px solid #652C2F;
+  margin-bottom: 6px;
 }
 
 .setlist-item:hover {
@@ -407,8 +500,18 @@ h1 {
 }
 
 .sb-song-artist {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #999;
+  margin-top: 2px;
+}
+
+.sb-song-key {
   font-size: 0.85rem;
   color: #aaa;
+  font-weight: 500;
+  flex-shrink: 0;
 }
 
 .navbar {
@@ -428,7 +531,11 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(to bottom, rgba(41, 41, 41, 0.726), rgba(15, 13, 13, 0.8));
+  background: linear-gradient(
+    to bottom,
+    rgba(41, 41, 41, 0.726),
+    rgba(15, 13, 13, 0.8)
+  );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -463,8 +570,8 @@ Title, Artist, Key, etc. styles
 .song-row {
   display: flex;
   width: 100%;
-  gap: .75rem;
-  padding: .75rem 2rem;
+  gap: 0.75rem;
+  padding: 0.75rem 2rem;
   /*background-color: #0f0d0d;*/
   background-color: transparent;
   border: none;
@@ -507,7 +614,7 @@ Title, Artist, Key, etc. styles
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color:  rgba(40, 40, 40, 0.95);
+  background-color: rgba(40, 40, 40, 0.95);
   color: white;
   padding: 12px 20px;
   border-radius: 8px;
@@ -526,34 +633,34 @@ Title, Artist, Key, etc. styles
 }
 
 .flash-message {
-    background-color: #333;
-    color: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    max-width: 400px;
-    margin: 10px auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background-color: #333;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 10px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .flash-message.success {
-    background-color: #28a745;
+  background-color: #28a745;
 }
 
 .flash-message.error {
-    background-color: #dc3545;
+  background-color: #dc3545;
 }
 
 .flash-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding-left: 10px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  padding-left: 10px;
 }
 
 .add-song-form {
@@ -569,32 +676,32 @@ Title, Artist, Key, etc. styles
 }
 
 .add-song-form label {
-    color: #f2f2f2;
-    font-size: 14px;
-    font-weight: 500;
+  color: #f2f2f2;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .add-song-form input {
-    background-color: #2b2b2b;
-    border: none;
-    padding: 10px 14px;
-    border-radius: 6px;
-    color: white;
-    font-size: 15px;
+  background-color: #2b2b2b;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  color: white;
+  font-size: 15px;
 }
 
 .add-song-form button[type="submit"] {
-    background-color: #652C2F;
-    border: none;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 15px;
-    cursor: pointer;
+  background-color: #652c2f;
+  border: none;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
 }
 
 .add-song-form button[type="submit"]:hover {
-    background-color: #5a292c;
+  background-color: #5a292c;
 }
 
 select {
@@ -633,9 +740,10 @@ select:focus {
 }
 
 .grid-title {
-  grid-column: 1 / -1;
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 4.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .grid-left {
@@ -658,13 +766,12 @@ select:focus {
   color: #fff;
   border: 1px solid #444;
   border-radius: 4px;
-  padding: 0.3rem 
-  0.6rem;
+  padding: 0.3rem 0.6rem;
 }
 
 #sortSelect {
   padding-right: 2.2rem;
-  background-color: #2b2b2b;  
+  background-color: #2b2b2b;
   color: white;
   border-radius: 6px;
   border: 1px solid #444;
@@ -673,7 +780,7 @@ select:focus {
 .filter-btn {
   padding: 0.4rem 1rem;
   border: none;
-  border-radius: 999px;
+  border-radius: 4px;
   background-color: #252525;
   color: #ebebeb;
   font-size: 0.9rem;
@@ -698,7 +805,7 @@ select:focus {
 #setlist {
   list-style: none;
   min-height: 700px;
-  padding: .5rem;
+  padding: 0.5rem;
 }
 
 .setlist-container {
@@ -778,7 +885,7 @@ iframe:fullscreen {
   z-index: 9999;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -793,8 +900,8 @@ iframe:fullscreen {
   color: white;
   padding: 2rem;
   border-radius: 10px;
-  width: 80vw;             /* wider modal overall */
-  max-width: 1000px;       /* limit max width */
+  width: 80vw; /* wider modal overall */
+  max-width: 1000px; /* limit max width */
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
@@ -811,259 +918,259 @@ iframe:fullscreen {
    CHORD SHEET EDITOR
 ------------------------------ */
 .sheet-editor {
-    max-width: 8.5in;
-    margin: 40px auto;
-    background: white;
-    min-height: 11in;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    padding: 1in;
-    font-family: 'Times New Roman', serif;
-    color: #000;
-    position: relative;
+  max-width: 8.5in;
+  margin: 40px auto;
+  background: white;
+  min-height: 11in;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 1in;
+  font-family: "Times New Roman", serif;
+  color: #000;
+  position: relative;
 }
 
 .sheet-header {
-    text-align: center;
-    border-bottom: 2px solid #333;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+  text-align: center;
+  border-bottom: 2px solid #333;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 /* Scoped to sheet header to avoid clash with setlist */
 .sheet-header .song-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    border: none;
-    outline: none;
-    background: transparent;
-    text-align: center;
-    width: 100%;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  width: 100%;
 }
 
 .song-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    color: #666;
-    margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+  margin-top: 10px;
 }
 
-.artist-input, .key-input {
-    border: none;
-    outline: none;
-    background: transparent;
-    border-bottom: 1px solid #ccc;
-    padding: 2px 5px;
+.artist-input,
+.key-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  border-bottom: 1px solid #ccc;
+  padding: 2px 5px;
 }
 
 .sheet-content {
-    line-height: 2.5;
-    font-size: 16px;
+  line-height: 2.5;
+  font-size: 16px;
 }
 
 .section-header {
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 30px 0 15px 0;
-    font-size: 14px;
-    color: #333;
-    border: none;
-    outline: none;
-    background: transparent;
-    width: 100%;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 30px 0 15px 0;
+  font-size: 14px;
+  color: #333;
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
 }
 
 .chord-lyric-pair {
-    position: relative;
-    margin-bottom: 25px;
-    min-height: 40px;
+  position: relative;
+  margin-bottom: 25px;
+  min-height: 40px;
 }
 
 .chord-overlay {
-    position: absolute;
-    top: -22px;
-    left: 0;
-    right: 0;
-    height: 20px;
-    pointer-events: none;
+  position: absolute;
+  top: -22px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  pointer-events: none;
 }
 
 .chord {
-    color: #2563eb;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    font-size: 14px;
-    pointer-events: auto;
-    cursor: move;
-    padding: 2px 4px;
-    border-radius: 3px;
-    user-select: none;
-    background: rgba(37, 99, 235, 0.1);
-    border: 1px solid transparent;
+  color: #2563eb;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
+  font-size: 14px;
+  pointer-events: auto;
+  cursor: move;
+  padding: 2px 4px;
+  border-radius: 3px;
+  user-select: none;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid transparent;
 }
 
 .chord:hover {
-    background: rgba(37, 99, 235, 0.2);
-    border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.2);
+  border-color: #2563eb;
 }
 
 .chord.dragging {
-    z-index: 1000;
-    opacity: 0.8;
+  z-index: 1000;
+  opacity: 0.8;
 }
 
 .lyric-line {
-    border: none;
-    outline: none;
-    background: transparent;
-    width: 100%;
-    cursor: text;
-    min-height: 20px;
-    padding: 2px 0;
-    border-bottom: 1px solid transparent;
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  cursor: text;
+  min-height: 20px;
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
 }
 
 .lyric-line:hover {
-    border-bottom-color: #e5e7eb;
+  border-bottom-color: #e5e7eb;
 }
 
 .lyric-line:focus {
-    border-bottom-color: #2563eb;
+  border-bottom-color: #2563eb;
 }
 
 .note-section {
-    background: #f8f9fa;
-    border-left: 4px solid #6b7280;
-    padding: 15px;
-    margin: 20px 0;
-    font-style: italic;
-    color: #4b5563;
+  background: #f8f9fa;
+  border-left: 4px solid #6b7280;
+  padding: 15px;
+  margin: 20px 0;
+  font-style: italic;
+  color: #4b5563;
 }
 
 .note-input {
-    border: none;
-    outline: none;
-    background: transparent;
-    width: 100%;
-    font-style: italic;
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-style: italic;
 }
 
 .add-section-btn {
-    background: #f3f4f6;
-    border: 2px dashed #d1d5db;
-    color: #6b7280;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    margin: 20px 0;
-    border-radius: 6px;
-    transition: all 0.2s;
+  background: #f3f4f6;
+  border: 2px dashed #d1d5db;
+  color: #6b7280;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  margin: 20px 0;
+  border-radius: 6px;
+  transition: all 0.2s;
 }
 
 .add-section-btn:hover {
-    background: #e5e7eb;
-    border-color: #9ca3af;
+  background: #e5e7eb;
+  border-color: #9ca3af;
 }
 
 .chord-input-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    border: 2px solid #2563eb;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    z-index: 2000;
-    display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 2px solid #2563eb;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  display: none;
 }
 
 .chord-input-modal input {
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 16px;
-    width: 150px;
-    text-align: center;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 16px;
+  width: 150px;
+  text-align: center;
+  font-family: "Courier New", monospace;
+  font-weight: bold;
 }
 
 .chord-input-modal .buttons {
-    margin-top: 15px;
-    text-align: center;
+  margin-top: 15px;
+  text-align: center;
 }
 
 .chord-input-modal button {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    margin: 0 5px;
-    cursor: pointer;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin: 0 5px;
+  cursor: pointer;
 }
 
 .chord-input-modal button.cancel {
-    background: #6b7280;
+  background: #6b7280;
 }
 
 .save-section {
-    text-align: center;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid #e5e7eb;
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
 }
 
 .save-btn {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    font-weight: 500;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 500;
 }
 
 .save-btn:hover {
-    background: #1d4ed8;
+  background: #1d4ed8;
 }
 
 /* Instructions */
 .instructions {
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #1e40af;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #1e40af;
 }
 
 .instructions strong {
-    color: #1e3a8a;
+  color: #1e3a8a;
 }
 
-
 .sortable-drag {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .sortable-ghost {
-  opacity: .4;
+  opacity: 0.4;
   background: #f0f0f0;
 }
 
 #mainView {
-  transition: background-color .2s;
+  transition: background-color 0.2s;
 }
 
 body.dragging-setlist-item #mainView {
-  background-color: rgba(255,0,0,.05);
+  background-color: rgba(255, 0, 0, 0.05);
   border: 2px dashed #ccc;
 }
 
@@ -1072,16 +1179,18 @@ html {
 }
 
 .btn-view-sheet {
-  display: inline-block;           
-  padding: 6px 12px;             
-  background: #7b2f31; 
+  display: inline-block;
+  padding: 6px 12px;
+  background: #7b2f31;
   color: white;
   border-radius: 8px;
   font-weight: 500;
   text-decoration: none;
   font-size: 15px;
-  transition: background 0.2s ease, transform 0.15s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .btn-view-sheet:hover {

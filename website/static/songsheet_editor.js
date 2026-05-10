@@ -262,20 +262,39 @@ function applyTogglesToChord(baseChord) {
   document.getElementById('wrapSel')?.addEventListener('click', wrapSelection);
 
   // Shortcuts ;g ;f#m ;bbmaj7
-  const shortcutRegex = /;([a-gA-G])([#b]?)(m|maj7|sus4|dim|7)?$/;
-  function expandShortcut(){
-    const pos = cp.selectionStart;
-    const left = cp.value.slice(0,pos);
-    const m = left.match(shortcutRegex);
-    if (!m) return;
-    let [all, root, accidental, qual] = m;
-    root = root.toUpperCase();
-    qual = qual || '';
-    const newLeft = left.slice(0, left.length - all.length) + `[${root}${accidental}${qual}]`;
-    cp.value = newLeft + cp.value.slice(pos);
-    const newPos = newLeft.length;
-    cp.selectionStart = cp.selectionEnd = newPos;
+  // Shortcuts ;g ;f#m ;bbmaj7 ;1-;7 (roman numeral shortcuts for current key)
+const shortcutRegex = /;([a-gA-G])([#b]?)(m|maj7|sus4|dim|7)?$/;
+const numeralRegex = /;([1-7])$/;
+
+function expandShortcut(){
+  const pos = cp.selectionStart;
+  const left = cp.value.slice(0, pos);
+
+  // Check for numeral shortcut first ;1-;7
+  const nm = left.match(numeralRegex);
+  if (nm) {
+    const degree = parseInt(nm[1]) - 1; // 0-indexed
+    const chords = diatonicChordsForKey(BASE_KEY);
+    if (chords && chords[degree]) {
+      const chord = chords[degree].insert || chords[degree];
+      const newLeft = left.slice(0, left.length - nm[0].length) + `[${chord}]`;
+      cp.value = newLeft + cp.value.slice(pos);
+      cp.selectionStart = cp.selectionEnd = newLeft.length;
+    }
+    return;
   }
+
+  // Existing letter shortcut ;g ;f#m etc
+  const m = left.match(shortcutRegex);
+  if (!m) return;
+  let [all, root, accidental, qual] = m;
+  root = root.toUpperCase();
+  qual = qual || '';
+  const newLeft = left.slice(0, left.length - all.length) + `[${root}${accidental}${qual}]`;
+  cp.value = newLeft + cp.value.slice(pos);
+  const newPos = newLeft.length;
+  cp.selectionStart = cp.selectionEnd = newPos;
+}
 
   // Live events
   cp.addEventListener('input', () => { expandShortcut(); renderPreview(); });
