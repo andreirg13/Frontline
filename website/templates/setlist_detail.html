@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block title %}Setlist{% endblock %} {% block
+content %}
+<div class="setlist-detail-page">
+  <h1>{{ setlist.name }}</h1>
+  <p>{{ setlist.date_created.strftime("%B %d, %Y") }}</p>
+
+  <div class="setlist-detail-list">
+    {% for link in setlist.songs_link %}
+    <div class="setlist-detail-item">
+
+      <div class="sl-track-num">
+        {{ "%02d"|format(loop.index) }}
+      </div>
+    
+      <div class="setlist-cover-wrap">
+        {% if link.song.image_url %}
+          <img
+            src="{{ link.song.image_url }}"
+            alt="{{ link.song.title }} album cover"
+            class="setlist-cover"
+          >
+        {% else %}
+          <div class="setlist-cover-placeholder">
+            {{ link.song.title[:1] }}
+          </div>
+        {% endif %}
+      </div>
+    
+      <div class="setlist-song-info">
+        <h3>{{ link.song.title }}</h3>
+        <p>{{ link.song.artist }}</p>
+      </div>
+    
+      <div class="setlist-actions">
+        <span class="setlist-key">{{ link.song.og_key }}</span>
+    
+        <a href="{{ url_for('views.view_songsheet', id=link.song.id) }}">
+          View Sheet
+        </a>
+      </div>
+    
+    </div>
+    {% endfor %}
+    <a class="open-live-btn" href="/setlist/{{ setlist.id }}/live">Open Live Mode</a>
+  </div>
+</div>
+{% endblock %}

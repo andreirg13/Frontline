@@ -4,6 +4,18 @@
   box-sizing: border-box;
 }
 
+
+
+:root {
+  --accent: #57798f;
+  --accent-hover: #3a5160;
+  --bg-primary: #f5f4f0;
+  --bg-container: #e8e5e0;
+  --text-primary: #171d24;
+  --text-muted: #999;
+  --border: #e0ddd8;
+}
+
 .chord-display,
 #chordSheetDisplay,
 #chordSheetDisplay * {
@@ -15,18 +27,11 @@ html {
 }
 
 body {
-  font-family: "Poppins", sans-serif;
-  background-color: #000000;
-  color: #eaeaea;
+  font-family: "Space Grotesk", sans-serif;
+  background-color: var(--bg-container);
+  color: #111;
   line-height: 1.4;
-  background: linear-gradient(
-    to bottom,
-    rgba(14, 14, 14, 0.85),
-    rgba(0, 0, 0, 0.9)
-  );
-  backdrop-filter: blur(20px);
   min-height: 100vh;
-  background-attachment: fixed;
 }
 nav,
 .navbar {
@@ -255,7 +260,7 @@ nav,
 }
 
 .save-btn {
-  background: #652c2f;
+  background: var(--accent);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -267,7 +272,7 @@ nav,
 }
 
 .save-btn:hover {
-  background: #5a292c;
+  background: var(--accent-hover);
 }
 
 #editor {
@@ -283,12 +288,13 @@ nav,
 }
 
 .sheet-wrap {
-  width: min(92vw, 900px);
+  width: min(92vw, 100%);
   margin: 16px auto;
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 8px;
   padding: 18px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 1px solid #e0ddd8;
   color: #111;
 }
 
@@ -365,7 +371,7 @@ nav,
 #chordpro {
   width: 100%;
   max-width: 100%;
-  min-height: 200px;
+  min-height: 600px;
   font-family: ui-monospace, Consolas, Menlo, monospace;
   padding: 10px;
   border: 1px solid #ccc;
@@ -392,7 +398,27 @@ nav,
   background: #fafafa;
   overflow-x: auto; /* long lines can scroll horizontally */
 }
+#clearChordsBtn {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
 
+#clearChordsBtn:hover {
+  background-color: #b91c1c;
+}
+
+#preview .comment {
+  font-weight: bold;
+  font-size: 1em;
+  display: block;
+  margin-top: 8px;
+}
 #preview .chord-sheet {
   font-family: ui-monospace, Consolas, Menlo, monospace;
   line-height: 1.6;
@@ -440,7 +466,7 @@ nav,
   margin-top: 16px;
 }
 .save-btn {
-  background: #652c2f;
+  background: var(--accent);
   color: #fff;
   border: 0;
   padding: 10px 20px;
@@ -469,6 +495,22 @@ nav,
   margin-bottom: 30px;
   flex-wrap: wrap;
   gap: 15px;
+  page-break-after: avoid;
+  break-after: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid;
+
+}
+
+.instructions {
+  background: #f0f0f0;
+  border: 1px solid #e0ddd8;
+  color: #444;
+  border-radius: 0;
+}
+
+.instructions a, .instructions em {
+  color: var(--accent);
 }
 
 .song-info h1 {
@@ -524,7 +566,7 @@ nav,
 
 .btn-back {
   padding: 8px 16px;
-  background: #652c2f;
+  background: var(--accent);
   color: white;
   text-decoration: none;
   border-radius: 6px;
@@ -533,7 +575,7 @@ nav,
 }
 
 .btn-back:hover {
-  background: #5a292c;
+  background: var(--accent-hover);
 }
 
 .chord-display {
@@ -542,6 +584,25 @@ nav,
   line-height: 1.2;
   color: #111;
   white-space: pre-wrap;
+}
+
+.chord-display {
+  margin-top: 8px !important;
+  column-count: 2;
+  column-gap: 20px;
+  column-rule: 1px solid #ddd;
+  column-fill: auto;
+  height: auto !important;        /* no fixed height */
+  max-height: none !important;
+  overflow: visible !important;
+  page-break-before: avoid;       /* don't push to new page */
+  break-before: avoid;
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+  color: black !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
 }
 
 .chord-display .chord-sheet .row {
@@ -600,23 +661,10 @@ nav,
     display: none !important;
   }
 
-  body {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  .player-container {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-
-  .player-header {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-
   body,
   html {
+    margin: 0 !important;
+    padding: 0 !important;
     min-height: 0 !important;
     height: auto !important;
     background: #fff !important;
@@ -636,8 +684,8 @@ nav,
 
   .player-header {
     display: block !important;
-    margin-bottom: 6px !important;
-    padding-bottom: 6px !important;
+    margin: 0 0 6px 0 !important;
+    padding: 0 0 6px 0 !important;
     border-bottom: 1px solid #ccc !important;
   }
 
@@ -653,16 +701,21 @@ nav,
     margin: 0 !important;
   }
 
+  /* Remove column-span — it's causing the blank first page */
+  .song-info {
+    column-span: none !important;
+  }
+
   .chord-display {
     margin-top: 8px !important;
     column-count: 2;
     column-gap: 20px;
     column-rule: 1px solid #ddd;
     column-fill: auto;
-    height: auto;
+    /* Two Letter pages minus margins = ~554mm, minus header ~20mm */
+    height: 530mm;
     font-size: 13px !important;
     line-height: 1.2 !important;
-    max-height: none !important;
     color: black !important;
     white-space: pre-wrap !important;
     word-break: break-word !important;
@@ -698,10 +751,6 @@ nav,
     padding: 0 !important;
     margin: 0 !important;
     word-break: break-word !important;
-  }
-
-  .song-info {
-    column-span: all;
   }
 }
 
@@ -744,4 +793,23 @@ nav,
   margin: 0;
 }
 
-/* TEST */
+
+
+#autosave-indicator {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #111;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+#autosave-indicator.visible {
+  opacity: 1;
+}

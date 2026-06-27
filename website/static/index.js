@@ -1,4 +1,3 @@
-
 function showToast(message) {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -10,6 +9,22 @@ function showToast(message) {
         toast.classList.remove('toast-show');
         toast.classList.add('hidden');
     }, 2500);
+}
+
+function removeFromSetlist(e, songId, btn) {
+    e.stopPropagation();
+
+    const setlistDate = getThisSundayDate();
+
+    fetch(`/delete-from-setlist/${songId}/${setlistDate}`, { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message) {
+            btn.closest('.setlist-item').remove();
+            updateSetlistSidebarState();
+        }
+    })
+    .catch(err => console.error('Failed to remove:', err));
 }
 
 function deleteSong(songId) {
@@ -50,6 +65,7 @@ function addToSetlist(songId, setlistDate) {
                 <div class="sb-song-artist">${data.song.artist}</div>
                 `;
                 setlistSidebar.appendChild(newItem);
+                updateSetlistSidebarState();
     }
 }
 }
@@ -59,11 +75,27 @@ function addToSetlist(songId, setlistDate) {
     })
 };
 
+function updateSetlistSidebarState() {
+    const emptyState = document.getElementById("setlist-empty");
+    const openSetlistBtn     = document.getElementById("open-setlist-btn");
+    const setlistItems = document.querySelectorAll("#sb-setlist .setlist-item");
+
+    const hasSongs = setlistItems.length > 0;
+
+    if (emptyState) {
+        emptyState.classList.toggle("hidden", hasSongs);
+    }
+
+    if (openSetlistBtn) {
+        openSetlistBtn.classList.toggle("hidden", !hasSongs);
+    }
+}
 
 
 
 
-function openEditForm(songId, title, artist, og_key, tempo, singer_type, holiday) {
+
+function openEditForm(songId, title, artist, og_key, tempo, singer_type, holiday, image_url, spotify_url) {
     document.getElementById("songModal")?.classList.add("hidden");
 
 
@@ -80,6 +112,10 @@ function openEditForm(songId, title, artist, og_key, tempo, singer_type, holiday
     document.getElementById('tempo').value = tempo || '';
     document.getElementById('singer_type').value = singer_type || '';
     document.getElementById('holiday').value = holiday || '';
+
+    document.getElementById("image_url").value = image_url || "";
+    document.getElementById("spotify_url").value = spotify_url || "";
+    
 
     const addSongView = document.getElementById('addSongView');
     const addSongSection = document.getElementById('addSongSection');
@@ -134,20 +170,21 @@ function getThisSundayDate() {
     };
 
 
-function deleteFromSetlist(songId, setlistDate) {
-    fetch (`/delete-from-setlist/${songId}/${setlistDate}`, {
-        method: 'POST',
-    })
-    .then(res => res.json())
-    .then(data => {
-        showToast(data.message);  // e.g., "Song added to setlist"
-        console.log(data.message)
-        location.reload();
-    })
-    .catch(error => {
-        console.error('Error deleting to setlist', error);
-    })
-};
+    function deleteFromSetlist(songId, setlistDate, btn) {
+        fetch(`/delete-from-setlist/${songId}/${setlistDate}`, {
+            method: 'POST',
+        })
+        .then(res => res.json())
+        .then(data => {
+            showToast(data.message);
+            if (data.message) {
+                btn.closest('.setlist-song-row').remove();
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting from setlist', error);
+        });
+    }
 
 function initDropdownMenus() {
     // Rebind dropdowns cleanly
@@ -188,6 +225,9 @@ function openSongModal(song) {
   document.getElementById("modalTempo").textContent = song.tempo || "—";
   document.getElementById("modalSinger").textContent = song.singer_type || "—";
   document.getElementById("modalTheme").textContent = song.holiday || "—";
+  document.getElementById("modalSpotify_url").textContent = song.spotify_url || "—";
+
+
 
 
   document.getElementById("viewChordSheetLink").href = `/songs/${song.id}/view`;
@@ -210,6 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const addBtn = document.getElementById("toggleAddBtn");
     const backBtn = document.getElementById("toggleBackBtn");
     initDropdownMenus();
+    updateSetlistSidebarState();
     
 
 
@@ -227,6 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const tempo = document.getElementById('tempo').value;
         const singer_type = document.getElementById('singer_type').value;
         const holiday = document.getElementById('holiday').value;
+        const image_url = document.getElementById('image_url').value;
+        const spotify_url = document.getElementById('spotify_url').value;
 
         const url = songId ? `/edit-song/${songId}` : '/';
         const formData = new FormData();
@@ -236,6 +279,9 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append('tempo', tempo);
         formData.append('singer_type', singer_type);
         formData.append('holiday', holiday);
+        formData.append('image_url', image_url);
+        formData.append('spotify_url', spotify_url);
+        
 
        
 
@@ -385,6 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Handle removal
         onRemove: function(evt) {
+            updateSetlistSidebarState();
             const songId = evt.item.dataset.id;
             const setlistDate = getThisSundayDate();
 
@@ -425,11 +472,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 const songData = li.dataset.song ? JSON.parse(li.dataset.song) : null;
                 if (songData) {
                     li.innerHTML = `
-                        <div class="item-content">
-                            <div class="sb-song-title">${songData.title}</div>
-                            <div class="sb-song-artist">${songData.artist}</div>
-                        </div>
-                    `
+    <div class="item-content">
+        <div class="sb-song-title">${songData.title}</div>
+        <div class="sb-song-artist">${songData.artist}</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <div class="sb-song-key">${songData.og_key || ''}</div>
+        <button class="sb-remove-btn" onclick="removeFromSetlist(event, ${songData.id}, this)">×</button>
+    </div>
+`
                 }
             } catch (e){
 
@@ -441,13 +492,16 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(data => {
                 if (!data.success) {
                     li.remove();
+                    updateSetlistSidebarState();
                     console.log(data.message || 'Add rejected')
                 } else {
                     console.log('Added to setlist')
+                    updateSetlistSidebarState();
                 }
             })
             .catch(err => {
                 li.remove();
+                updateSetlistSidebarState();
                 console.error('Failed to add', err);
             });
         },
@@ -455,21 +509,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const libraryArea = document.getElementById('mainView');
 
-    if (libraryArea) {
-        const trashZone = new Sortable(libraryArea, {
-            group: {
-                name: 'setlist',
-                pull: false,
-                put: true
-            },
-            sort: false,
-
-            onAdd: function(evt) {
-                evt.item.remove();
-                console.log('Item dropped in library, removed from setlist')
-            }
-        });
-    }
+    
 
     const songTable = document.getElementById('songList');
     
@@ -574,11 +614,32 @@ document.addEventListener('click', (e) => {
 
 
 document.querySelectorAll('.song-row').forEach(songEl => {
-  songEl.addEventListener('click', () => {
-    const songData = JSON.parse(songEl.dataset.song);
-    openSongModal(songData);
+    songEl.addEventListener('click', () => {
+      const songData = JSON.parse(songEl.dataset.song);
+      openSongModal(songData);
+    });
   });
+
+
+
+
+
 });
 
+document.addEventListener('click', function(e) {
+    console.log('click fired', e.target);
+    const btn = e.target.closest('.sl-menu-btn');
+    
+    // close all dropdowns
+    document.querySelectorAll('.sl-dropdown.open').forEach(d => {
+        if (!btn || d.id !== btn.dataset.dropdown) {
+            d.classList.remove('open');
+        }
+    });
 
+    if (btn) {
+        e.stopPropagation();
+        const dropdown = document.getElementById(btn.dataset.dropdown);
+        if (dropdown) dropdown.classList.toggle('open');
+    }
 });

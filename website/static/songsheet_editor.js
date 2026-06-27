@@ -277,9 +277,11 @@ function expandShortcut(){
     const chords = diatonicChordsForKey(BASE_KEY);
     if (chords && chords[degree]) {
       const chord = chords[degree].insert || chords[degree];
-      const newLeft = left.slice(0, left.length - nm[0].length) + `[${chord}]`;
+      const inserted = `[${chord}]`;
+      const newLeft = left.slice(0, left.length - nm[0].length) + inserted;
       cp.value = newLeft + cp.value.slice(pos);
-      cp.selectionStart = cp.selectionEnd = newLeft.length;
+      // position cursor before the closing ]
+      cp.selectionStart = cp.selectionEnd = newLeft.length - 1;
     }
     return;
   }
@@ -335,17 +337,17 @@ keyInput?.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') { e.preventDefault(); applyTypedKey(); }
 });
 
-cp.addEventListener('paste', (e) => {
-  setTimeout(() => {
-    const text = cp.value;
-    const detectedKey = detectKeyFromChords(text);
-    if (detectedKey && keyInput) {
-      keyInput.value = detectedKey;
-      BASE_KEY = detectedKey;
-      buildPaletteForKey(BASE_KEY);
-    }
-    renderPreview();
-  }, 10);
+document.getElementById('clearChordsBtn')?.addEventListener('click', () => {
+  document.getElementById('clearModal').style.display = 'flex';
+});
+document.getElementById('clearConfirm')?.addEventListener('click', () => {
+  const textarea = document.getElementById('chordpro');
+  textarea.value = textarea.value.replace(/\[[A-G][^\]]*\]/g, '');
+  renderPreview();
+  document.getElementById('clearModal').style.display = 'none';
+});
+document.getElementById('clearCancel')?.addEventListener('click', () => {
+  document.getElementById('clearModal').style.display = 'none';
 });
 
 function detectKeyFromChords(text) {
@@ -364,18 +366,44 @@ function detectKeyFromChords(text) {
   // Save
   saveBtn?.addEventListener('click', async () => {
     const saveUrl = saveBtn.dataset.saveUrl;
-    if (!saveUrl) return alert('Missing save URL');
+    if (!saveUrl) return;
     const payload = {
-      title:  document.querySelector('.song-title')?.value || '',
-      artist: document.querySelector('.artist-input')?.value || '',
-      key:    keyInput?.value || '',
-      chordpro: cp.value || ''
+        title:    document.querySelector('.song-title')?.value || '',
+        artist:   document.querySelector('.artist-input')?.value || '',
+        key:      keyInput?.value || '',
+        chordpro: cp.value || ''
     };
-    try{
-      const res = await fetch(saveUrl, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-      alert(res.ok ? 'Saved' : 'Save failed');
-    }catch{ alert('Save failed'); }
-  });
+    try {
+        const res = await fetch(saveUrl, { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(payload) 
+        });
+        if (res.ok) {
+            showAutoSaveIndicator('Saved');
+        } else {
+            showAutoSaveIndicator('Save failed');
+        }
+    } catch {
+        showAutoSaveIndicator('Save failed');
+    }
+});
+
+function showAutoSaveIndicator(message) {
+    let indicator = document.getElementById('autosave-indicator');
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.id = 'autosave-indicator';
+        document.body.appendChild(indicator);
+    }
+    indicator.textContent = message;
+    indicator.classList.add('visible');
+    setTimeout(() => indicator.classList.remove('visible'), 2000);
+}
+
+setInterval(function() {
+    if (saveBtn) saveBtn.click();
+}, 120000);
 
 
   document.getElementById("chordpro").addEventListener("keydown", function(e) {
@@ -387,4 +415,18 @@ function detectKeyFromChords(text) {
         this.selectionStart = this.selectionEnd + 1;
     }
 });
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      e.preventDefault();
+      document.querySelector('.save-btn').click();
+  }
+});
+
+let autoSaveTimer = setInterval(function() {
+  const saveBtn = document.querySelector('.save-btn');
+  if (saveBtn) {
+      saveBtn.click();
+      console.log('Auto-saved');
+  }
+}, 30000);
 });

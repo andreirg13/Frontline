@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Live Mode{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='songsheet.css') }}">
+
+<div class="live-page" id="livePage">
+
+  <!-- Sticky top nav -->
+  <div class="live-topbar">
+    <div class="live-song-nav" id="songNav"></div>
+    <a href="/setlist/current" class="live-exit">✕ Exit</a>
+  </div>
+
+  <!-- All songs -->
+  <div class="live-scroll-container" id="liveScrollContainer">
+    <div id="liveSongs"></div>
+  </div>
+
+  <!-- Floating bottom scroll controls -->
+  <div class="live-float-bar">
+    <button id="scrollToggle" class="live-scroll-btn">▶ Scroll</button>
+    <input type="range" id="scrollSpeed" min="0.5" max="5" step="0.5" value="1" class="live-speed-slider">
+    <span id="scrollSpeedLabel" class="live-label">1x</span>
+  </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='vendor/bundle.min.js') }}"></script>
+<script>
+const SONGS = {{ songs_data | safe }};
+
+const FLAT_NOTES  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const SHARP_NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLAT_KEYS   = new Set(['C','F','Bb','Eb','Ab','Db','Gb','Cb','Am','Dm','Gm','Cm','Fm','Bbm','Ebm','Abm']);
+
+function useFlats(k) { return FLAT_KEYS.has((k||'C').trim()) || /b/.test(k); }
+function noteIndex(n) { let i = SHARP_NOTES.indexOf(n); return i !== -1 ? i : FLAT_NOTES.indexOf(n); }
+function transposeNote(note, steps, flats) {
+  const idx = noteIndex(note); if (idx < 0) return note;
+  return (flats ? FLAT_NOTES : SHARP_NOTES)[(idx + steps % 12 + 12) % 12];
+}
+function transposeKeyName(key, steps) {
+  const minor = /m$/.test(key), root = key.replace(/m$/,'');
+  return transposeNote(root, steps, useFlats(key)) + (minor ? 'm' : '');
+}
+
+// per-song transpose state
+const transposeSteps = {};
+
+function renderSongSheet(song, steps, displayEl) {
+  const CS = window.ChordSheetJS;
+  if (!song.sheet_data || song.sheet_data.trim() === '') {
+    displayEl.innerHTML = '<p class="live-no-sheet">No chord sheet yet.</p>';
+    return;
+  }
+  try {
+    const parser = new CS.ChordProParser();
+    let parsed = parser.parse(song.sheet_data);
+    if (steps !== 0) parsed = parsed.transpose(steps);
+    const formatter = new CS.HtmlDivFormatter({ showChords: 'top' });
+    displayEl.innerHTML = formatter.format(parsed);
+  } catch(e) {
+    displayEl.innerHTML = '<p class="live-no-sheet">Error rendering sheet.</p>';
+  }
+}
+
+function buildSongs() {
+  const container = document.getElementById('liveSongs');
+  const nav = document.getElementById('songNav');
+
+  SONGS.forEach((song, i) => {
+    transposeSteps[song.id] = 0;
+
+    // nav dot
+    const dot = document.createElement('button');
+    dot.className = 'live-nav-dot';
+    dot.title = song.title;
+    dot.innerHTML = `<span class="live-nav-num">${String(i+1).padStart(2,'0')}</span><span class="live-nav-title">${song.title}</span>`;
+    dot.addEventListener('click', () => {
+      document.getElementById(`song-section-${song.id}`).scrollIntoView({ behavior: 'smooth' });
+    });
+    nav.appendChild(dot);
+
+    // song section
+    const section = document.createElement('div');
+    section.className = 'live-song-section';
+    section.id = `song-section-${song.id}`;
+    section.innerHTML = `
+      <div class="live-song-header">
+        <div class="live-song-header-left">
+          <span class="live-song-num">${String(i+1).padStart(2,'0')}</span>
+          <div>
+            <div class="live-song-title">${song.title}</div>
+            <div class="live-song-artist">${song.artist}</div>
+          </div>
+        </div>
+        <div class="live-song-toolbar">
+          <span class="live-label">Transpose</span>
+          <select class="live-select" data-song-id="${song.id}">
+            <option value="0">Original</option>
+            <option value="1">+1</option>
+            <option value="2">+2</option>
+            <option value="3">+3</option>
+            <option value="4">+4</option>
+            <option value="5">+5</option>
+            <option value="6">+6</option>
+            <option value="-1">-1</option>
+            <option value="-2">-2</option>
+            <option value="-3">-3</option>
+            <option value="-4">-4</option>
+            <option value="-5">-5</option>
+            <option value="-6">-6</option>
+          </select>
+          <span class="live-key-display">Key: <strong class="live-key-val" data-song-id="${song.id}">${song.og_key}</strong></span>
+        </div>
+      </div>
+      <div class="live-chord-display chord-display" id="display-${song.id}"></div>
+      <div class="live-song-divider"></div>
+    `;
+    container.appendChild(section);
+
+    // render sheet
+    renderSongSheet(song, 0, document.getElementById(`display-${song.id}`));
+
+    // transpose handler
+    section.querySelector('.live-select').addEventListener('change', (e) => {
+      const steps = parseInt(e.target.value) || 0;
+      transposeSteps[song.id] = steps;
+      const displayEl = document.getElementById(`display-${song.id}`);
+      renderSongSheet(song, steps, displayEl);
+      section.querySelector(`.live-key-val[data-song-id="${song.id}"]`).textContent = transposeKeyName(song.og_key, steps);
+    });
+  });
+}
+
+// Auto-scroll
+let scrollInterval = null;
+let isScrolling = false;
+let scrollSpeed = 1;
+const scrollContainer = document.getElementById('liveScrollContainer');
+
+function startScroll() {
+  scrollInterval = setInterval(() => {
+    scrollContainer.scrollTop += scrollSpeed;
+    if (scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight) {
+      stopScroll();
+      updateScrollBtn();
+    }
+  }, 30);
+  isScrolling = true;
+}
+
+function stopScroll() {
+  clearInterval(scrollInterval);
+  scrollInterval = null;
+  isScrolling = false;
+}
+
+function updateScrollBtn() {
+  document.getElementById('scrollToggle').textContent = isScrolling ? '⏸ Pause' : '▶ Scroll';
+}
+
+document.getElementById('scrollToggle').addEventListener('click', () => {
+  isScrolling ? stopScroll() : startScroll();
+  updateScrollBtn();
+});
+
+document.getElementById('scrollSpeed').addEventListener('input', (e) => {
+  scrollSpeed = parseFloat(e.target.value);
+  document.getElementById('scrollSpeedLabel').textContent = `${scrollSpeed}x`;
+  if (isScrolling) { stopScroll(); startScroll(); }
+});
+
+// keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ') { e.preventDefault(); isScrolling ? stopScroll() : startScroll(); updateScrollBtn(); }
+});
+
+buildSongs();
+</script>
+<style>
+    .fw-footer { display: none; }
+  </style>
+{% endblock %}

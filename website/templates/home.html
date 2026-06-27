@@ -1,236 +1,357 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %}
-{%block content%}
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+%}
 <!-- HERO SECTION -->
 <div class="hero-section">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-        <p class="hero-tagline">ORGANIZE. PREPARE. LEAD.</p>
-        <h1 class="hero-title">Song Library</h1>
-        <p class="hero-subtitle">Your complete library for worship songs, keys, and moments that matter.</p>
-    </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-tagline">ORGANIZE. PREPARE. LEAD.</p>
+    <h1 class="hero-title">Song Library</h1>
+    <p class="hero-subtitle">
+      Your complete library for worship songs, keys, and moments that matter.
+    </p>
+  </div>
 </div>
+
 <div class="sidebar">
-    <h4>This Week's Setlist</h4>
-    <div id="sb-setlist">
-        {% for link in setlist_songs %}
-        <div class="setlist-item" data-id="{{ link.song.id }}">
-            <div class="item-content">
-                <div class="sb-song-title">{{ link.song.title }}</div>
-                <div class="sb-song-artist">{{ link.song.artist }}</div>
-            </div>
-            <div class="sb-song-key">{{ link.song.og_key }}</div>
-        </div>
-        {% endfor %}
+  <h4>This Week's Setlist</h4>
+
+  <div id="sb-setlist">
+    <div
+      id="setlist-empty"
+      class="setlist-empty {% if setlist_songs %}hidden{% endif %}"
+    >
+      <p>No songs in this week’s setlist yet.</p>
+      <span>Add songs from your library to build Sunday’s set.</span>
     </div>
+
+    {% for link in setlist_songs %}
+    <div class="setlist-item" data-id="{{ link.song.id }}">
+      <div class="item-content">
+        <div class="sb-song-title">{{ link.song.title }}</div>
+        <div class="sb-song-artist">{{ link.song.artist }}</div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px">
+        <div class="sb-song-key">{{ link.song.og_key }}</div>
+        <button
+          class="sb-remove-btn"
+          onclick="removeFromSetlist(event, {{ link.song.id }}, this)"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <a
+    id="open-setlist-btn"
+    class="open-setlist-btn {% if not setlist_songs %}hidden{% endif %}"
+    href="{{ url_for('views.current_setlist') }}"
+  >
+    Open Setlist
+  </a>
 </div>
-
-
 
 <div class="main" id="mainView">
-    <!-- RIGHT COLUMN -->
-    <div id="main-content" class="flex-grow-1 p-4">
-        <div class="main-header-grid">
-  
-        
-
-        <div class="grid-left">
-            <div class="search-wrapper">
-            <i class="bi bi-search search-icon"></i>
-            <input type="text" id="searchInput" placeholder="Search for songs..." autocomplete="off" />
-            </div>
+  <!-- RIGHT COLUMN -->
+  <div id="main-content" class="flex-grow-1 p-4">
+    <div class="main-header-grid">
+      <div class="grid-left">
+        <div class="search-wrapper">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search..."
+            autocomplete="off"
+          />
+          <button class="search-btn">
+            <i class="bi bi-search"></i>
+          </button>
         </div>
+      </div>
 
-        <div class="grid-right">
-            <button id="toggleAddBtn" class="add-song-button" onclick="addSongForm()">
-            <span class="plus-icon">+</span> Add Song
-            </button>
+      <div class="grid-right">
+        <button
+          id="toggleAddBtn"
+          class="add-song-button"
+          onclick="addSongForm()"
+        >
+          <span class="plus-icon">+</span> Add Song
+        </button>
 
-            <div class="sort-controls">
-            <form method="GET" id="sortForm" style="display: inline">
+        <div class="sort-controls">
+          <form method="GET" id="sortForm" style="display: inline">
             <label for="sortSelect">Sort by: </label>
-            <select id="sortSelect" name="sort" onchange="document.getElementById('sortForm').submit()">
-                <option value="title" {% if current_sort == 'title' %}selected{% endif %}>Title (A–Z)   </option>
-                <option value="artist" {% if current_sort == 'artist' %}selected{% endif %}>Artist (A–Z)    </option>
+            <select
+              id="sortSelect"
+              name="sort"
+              onchange="document.getElementById('sortForm').submit()"
+            ><option value="title" {% if current_sort == "title" %}selected{% endif %}>
+              Title (A–Z)
+            </option>
+            
+            <option value="artist" {% if current_sort == "artist" %}selected{% endif %}>
+              Artist (A–Z)
+            </option>
+            
+            <option value="recent" {% if current_sort == "recent" %}selected{% endif %}>
+              Recently Added
+            </option>
+                Recently Added
+              </option>
             </select>
-            </form>
-            </div>
+          </form>
         </div>
+      </div>
 
-        <div class="grid-filters">
+      <div class="grid-filters">
         <div class="filter-bar">
-            <button class="filter-btn" data-group="tempo" data-value="Fast">Fast</button>
-            <button class="filter-btn" data-group="tempo" data-value="Slow">Slow</button>
+          <button class="filter-btn" data-group="tempo" data-value="Fast">
+            Fast
+          </button>
+          <button class="filter-btn" data-group="tempo" data-value="Slow">
+            Slow
+          </button>
 
-            <button class="filter-btn" data-group="singer" data-value="Male">Male</button>
-            <button class="filter-btn" data-group="singer" data-value="Female">Female</button>
+          <button class="filter-btn" data-group="singer" data-value="Male">
+            Male
+          </button>
+          <button class="filter-btn" data-group="singer" data-value="Female">
+            Female
+          </button>
 
-            <button class="filter-btn" data-group="holiday" data-value="Christmas">Christmas</button>
-            <button class="filter-btn" data-group="holiday" data-value="Easter">Easter</button>
-            <button class="filter-btn" data-group="holiday" data-value="Palm Sunday">Palm Sunday</button>
-            <button class="filter-btn" data-group="holiday" data-value="Communion">Communion</button>
-            <button class="filter-btn" data-group="holiday" data-value="Baptism">Baptism</button>
+          <button
+            class="filter-btn"
+            data-group="holiday"
+            data-value="Christmas"
+          >
+            Christmas
+          </button>
+          <button class="filter-btn" data-group="holiday" data-value="Easter">
+            Easter
+          </button>
+          <button
+            class="filter-btn"
+            data-group="holiday"
+            data-value="Palm Sunday"
+          >
+            Palm Sunday
+          </button>
+          <button
+            class="filter-btn"
+            data-group="holiday"
+            data-value="Communion"
+          >
+            Communion
+          </button>
+          <button class="filter-btn" data-group="holiday" data-value="Baptism">
+            Baptism
+          </button>
         </div>
-        </div>
-
-        </div>
-
-        <div class="song-table-labels">
-            <div class="title-col">Title</div>
-            <div class="artist-col">Artist</div>
-            <div class="key-col">Key</div>
-            <div class="dropdown-col"></div>
-        </div>
-        <div class="song-table-wrapper">
-            <ul class="list-group mb-4" id="songList">
-                {% for song, sjson in zip(songs, songs_json) %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center song-row"
-                        data-id="{{ song.id }}"
-                        data-tempo="{{ song.tempo|default('') }}"
-                        data-singer="{{ song.singer_type|default('') }}"
-                        data-holiday="{{ song.holiday|default('') }}"
-                        data-song='{{ sjson | tojson | safe }}'
-                        >
-                        <!-- Title -->
-                        <div class="col title-col">
-                            <strong>{{ song.title }}</strong>
-                        </div>
-                        <!-- Artist -->
-                        <div class="col artist-col">
-                            {{ song.artist }}
-                        </div>
-                        <!-- Key -->
-                        <div class="col key-col">
-                            {{ song.og_key }}                 
-                        </div>
-
-                        <div class="col-auto dropdown ms-auto">
-                            <button class="dropdown-toggle-btn btn btn-sm btn-outline-light">
-                                <i class="bi bi-three-dots"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="#" onclick="deleteSong({{ song.id }})">Delete</a></li>
-                                <li>
-                                    <a class="dropdown-item" href="#"
-                                    onclick='openEditForm({{ song.id }},
-                                    {{ song.title|tojson }},
-                                    {{ song.artist|tojson }},
-                                    {{ song.og_key|tojson }},
-                                    {{ song.tempo|default("")|tojson }},
-                                    {{ song.singer_type|default("")|tojson }},
-                                    {{ song.holiday|default("")|tojson }}'
-
-                                    >Edit</a>
-                                </li>
-
-                                <li class="dropdown-submenu">
-                                    <a class="dropdown-item dropdown-toggle" href="#">Add to a Setlist</a>
-                                    <ul class="dropdown-menu scrollable-dropdown">
-                                        {% for sunday in sundays %}
-                                        <li>
-                                            <a href="#" class="dropdown-item" onclick="addToSetlist({{ song.id }}, '{{ sunday.isoformat() }}')">
-                                                {{ sunday.strftime('%b %d, %Y') }}
-                                            </a>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+      </div>
     </div>
+
+    <div class="song-table-labels">
+      <div class="title-col">Title</div>
+      <div class="artist-col">Artist</div>
+      <div class="key-col">Key</div>
+      <div class="dropdown-col"></div>
+    </div>
+    <div class="song-table-wrapper">
+      <ul class="list-group mb-4" id="songList">
+        {% for song, sjson in zip(songs, songs_json) %}
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center song-row"
+            data-id="{{ song.id }}"
+            data-tempo="{{ song.tempo|default('') }}"
+            data-singer="{{ song.singer_type|default('') }}"
+            data-holiday="{{ song.holiday|default('') }}"
+            data-song='{{ sjson | tojson }}'
+          >
+          <!-- Title -->
+          <div class="col title-col">
+            <strong>{{ song.title }}</strong>
+          </div>
+          <!-- Artist -->
+          <div class="col artist-col">{{ song.artist }}</div>
+          <!-- Key -->
+          <div class="col key-col">{{ song.og_key }}</div>
+
+          <div class="col-auto dropdown ms-auto">
+            <button
+              type="button"
+              class="dropdown-toggle-btn btn btn-sm btn-outline-light"
+              onclick="event.stopPropagation(); toggleDropdown(this);"
+            >
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="event.preventDefault(); event.stopPropagation(); deleteSong({{ song.id }});"
+                >
+                  Delete
+                </a>
+              </li>
+            
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick='event.preventDefault(); event.stopPropagation(); openEditForm(
+                    {{ song.id }},
+                    {{ song.title|tojson }},
+                    {{ song.artist|tojson }},
+                    {{ song.og_key|tojson }},
+                    {{ song.tempo|default("")|tojson }},
+                    {{ song.singer_type|default("")|tojson }},
+                    {{ song.holiday|default("")|tojson }},
+                    {{ song.image_url|default("")|tojson }},
+                    {{ song.spotify_url|default("")|tojson }}
+                  )'
+                >
+                  Edit
+                </a>
+              </li>
+            
+              <li class="dropdown-submenu">
+                <a
+                  class="dropdown-item dropdown-toggle"
+                  href="#"
+                  onclick="event.preventDefault(); event.stopPropagation();"
+                >
+                  Add to a Setlist
+                </a>
+            
+                <ul class="dropdown-menu scrollable-dropdown">
+                  {% for sunday in sundays %}
+                  <li>
+                    <a
+                      href="#"
+                      class="dropdown-item"
+                      onclick="event.preventDefault(); event.stopPropagation(); addToSetlist({{ song.id }}, '{{ sunday.isoformat() }}')"
+                    >
+                      {{ sunday.strftime('%b %d, %Y') }}
+                    </a>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
 
 <!-- EDIT SONG VIEW -->
 
-
-
-
 <!-- ADD SONG VIEW -->
 <div id="addSongView" class="hidden">
-    <div id="addSongSection" class="hidden">
-        <button id="toggleBackBtn" class="btn btn-outline-light rounded-pill ms-3">
-            <i class="bi bi-arrow-return-left"></i> Back 
-        </button>
+  <div id="addSongSection" class="hidden">
+    <button id="toggleBackBtn" class="btn btn-outline-light rounded-pill ms-3">
+      <i class="bi bi-arrow-return-left"></i> Back
+    </button>
 
-        <h2 id="formTitle"> Add Song</h2>
+    <h2 id="formTitle" class="form-header">Add Song</h2>
 
-        <form method="POST" enctype="multipart/form-data" id="addSongForm" class="add-song-form">
-            <input type="hidden" id="song_id" name="song_id" value="">
-            <label for="title">Song Title</label>
-            <input type="text" name="title" id="title" placeholder="Song Title:" />
+    <form
+      method="POST"
+      enctype="multipart/form-data"
+      id="addSongForm"
+      class="add-song-form"
+    >
+      <input type="hidden" id="song_id" name="song_id" value="" />
+      <label for="title">Song Title</label>
+      <input type="text" name="title" id="title" placeholder="Song Title" />
 
-            <label for="title">Artist Name</label>
-            <input type="text" name="artist" id="artist" placeholder="Artist Name:" />
+      <label for="title">Artist Name</label>
+      <input type="text" name="artist" id="artist" placeholder="Artist Name" />
 
-            <label for="title">Original Key</label>
-            <input type="text" name="og_key" id="og_key" placeholder="Original Key:" />
+      <label for="title">Original Key</label>
+      <input
+        type="text"
+        name="og_key"
+        id="og_key"
+        placeholder="Original Key:"
+      />
+      <label for="title">Album Cover</label>
+      <input type="url" name="image_url" id="image_url" placeholder="Album cover image URL" />
+      <label for="title">Spotify link</label>
+      <input type="url" name="spotify_url" id="spotify_url" placeholder="Spotify song URL" />
 
-            <label for="tempo">Tempo</label>
-            <select name="tempo" id="tempo">
-                <option value="">-- Select Tempo --</option>
-                <option value="Fast">Fast</option>
-                <option value="Slow">Slow</option>
-            </select>
+      <label for="tempo">Tempo</label>
+      <select name="tempo" id="tempo">
+        <option value="">-- Select Tempo --</option>
+        <option value="Fast">Fast</option>
+        <option value="Slow">Slow</option>
+      </select>
 
-            <label for="singer_type">Singer Type</label>
-            <select name="singer_type" id="singer_type">
-                <option value="">-- Select Singer --</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Female">Either one</option>
-            </select>
+      <label for="singer_type">Singer Type</label>
+      <select name="singer_type" id="singer_type">
+        <option value="">-- Select Singer --</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Female">Either one</option>
+      </select>
 
-            <label for="holiday">Theme</label>
-            <select name="holiday" id="holiday">
-                <option value="">-- None --</option>
-                <option value="Christmas">Christmas</option>
-                <option value="Easter">Easter</option>
-                <option value="Palm Sunday">Palm Sunday</option>
-                <option value="Thanksgiving">Thanksgiving</option>
-                <option value="Baptism">Baptism</option>
-                <option value="Communion">Communion</option>
-            </select>
+      <label for="holiday">Theme</label>
+      <select name="holiday" id="holiday">
+        <option value="">-- None --</option>
+        <option value="Christmas">Christmas</option>
+        <option value="Easter">Easter</option>
+        <option value="Palm Sunday">Palm Sunday</option>
+        <option value="Thanksgiving">Thanksgiving</option>
+        <option value="Baptism">Baptism</option>
+        <option value="Communion">Communion</option>
+      </select>
 
-          
-
-            <button id="submitBtn" type="submit">Add Song</button>
-        </form>
-    </div>
+      <button id="submitBtn" class="add-song-button" type="submit">
+        Add Ssong
+      </button>
+    </form>
+  </div>
 </div>
 
 <!-- Song Details Modal -->
 <div id="songModal" class="custom-modal hidden">
   <div class="custom-modal-content">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-    <h2 id="modalSongTitle" style="margin: 0;">Song Title</h2>
-        <div>
-           
-
-            <!-- Close button -->
-            <button onclick="closeSongModal()" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">✕</button>
-            
-        </div>
+    <div
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <h2 id="modalSongTitle" style="margin: 0">Song Title</h2>
+      <div>
+        <!-- Close button -->
+        <button
+          onclick="closeSongModal()"
+          style="
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+          "
+        >
+          ✕
+        </button>
+      </div>
     </div>
 
     <a href="#" id="viewChordSheetLink" class="btn-view-sheet">
-        View Chord Sheet
+      View Chord Sheet
     </a>
-
-    
 
     <p><strong>Artist:</strong> <span id="modalArtist"></span></p>
     <p><strong>Key:</strong> <span id="modalKey"></span></p>
     <p><strong>Tempo:</strong> <span id="modalTempo"></span></p>
     <p><strong>Singer Type:</strong> <span id="modalSinger"></span></p>
     <p><strong>Theme:</strong> <span id="modalTheme"></span></p>
+    <p><strong>Spotify link:</strong> <span id="modalSpotify_url"></span></p>
 
   </div>
 </div>
-
-
-
 
 {% endblock %}

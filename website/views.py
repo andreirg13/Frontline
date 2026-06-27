@@ -5,6 +5,8 @@ from datetime import date, timedelta, datetime
 from werkzeug.utils import secure_filename
 import os, json
 from .models import db, Song, User, Setlist, SetlistSong
+from . import limiter
+from .spotify_helper import fetch_album_art
 
 
 views = Blueprint('views', __name__)
@@ -28,6 +30,8 @@ def home():
             tempo = data.get('tempo')
             singer_type = data.get('singer_type')
             holiday = data.get('holiday')
+            image_url = data.get('image_url')
+            spotify_url = data.get('spotify_url')
 
         else:
             title = request.form.get('title')
@@ -36,7 +40,17 @@ def home():
             tempo = request.form.get('tempo')
             singer_type = request.form.get('singer_type')
             holiday = request.form.get('holiday')
+            image_url = request.form.get('image_url')
+            spotify_url = request.form.get('spotify_url')
+        
 
+
+    
+        if spotify_url != "":
+            if not spotify_url.startswith(("http://", "https://")):
+                return jsonify({'success': False, 'message': 'Invalid Spotify link'})
+            if "spotify.com" not in spotify_url:
+                return jsonify({'success': False, 'message': 'Must be a Spotify URL'})
         if not title or len(title) < 1:
             return jsonify({'success': False, 'message': 'Song title is too short!'}) 
         if og_key not in music_keys:
@@ -47,6 +61,11 @@ def home():
             func.lower(Song.artist) == artist.lower(),
             Song.user_id == current_user.id
         ).first()
+        fetched_image = fetch_album_art(title, artist, spotify_url=spotify_url)
+
+        if not image_url:
+            image_url = fetched_image
+
         if existing_song:
             return jsonify({'success': False, 'message': 'Song is already in the library.'})
         else:
@@ -57,7 +76,9 @@ def home():
                 tempo=tempo, 
                 singer_type=singer_type,
                 holiday=holiday,
-                user_id = current_user.id
+                user_id = current_user.id,
+                image_url=image_url,
+                spotify_url=spotify_url
                 )
             db.session.add(new_song)
             db.session.commit()
@@ -67,7 +88,6 @@ def home():
 
     
     # RENDER SORTING
-    #
 
     sort_by = request.args.get('sort', 'title')
 
@@ -75,7 +95,9 @@ def home():
 
     if sort_by == 'artist':
         song_query = song_query.order_by(Song.artist.asc())
-    if sort_by == 'title':
+    elif sort_by == 'recent':
+        song_query = song_query.order_by(Song.date.desc())
+    else:
         song_query = song_query.order_by(Song.title.asc())
 
     songs = song_query.all()
@@ -148,7 +170,21 @@ def songsheet_maker(id):
     sheet = {"id": song.id, "title": song.title, "artist": song.artist, "song_key": song.og_key}
     return render_template('songsheet_maker.html', sheet=sheet, chordpro=song.sheet_data)
 
+@views.route('/setlist/current')
+@login_required
+def current_setlist():
+    today = date.today()
+    this_sunday = today + timedelta(days=(6 - today.weekday()))
+
+    setlist = Setlist.query.filter_by(
+        user_id = current_user.id,
+        date_created = this_sunday
+    ).first_or_404()
+
+    return render_template("setlist_detail.html", setlist=setlist, user=current_user, layout_class="full-page-layout")
+
 @views.route('/songsheet/<int:id>/save', methods=['POST'])
+@limiter.exempt
 @login_required
 def songsheet_save(id):
     song = Song.query.filter_by(id=id, user_id=current_user.id).first_or_404()
@@ -281,6 +317,8 @@ def edit_song (song_id):
     tempo = request.form.get('tempo')
     singer_type = request.form.get('singer_type')
     holiday = request.form.get('holiday')
+    spotify_url = request.form.get('spotify_url')
+    image_url = request.form.get('image_url')
 
    
 
@@ -294,6 +332,20 @@ def edit_song (song_id):
     song.tempo = tempo
     song.singer_type = singer_type
     song.holiday = holiday
+    song.image_url = image_url
+
+    song.spotify_url = spotify_url
+    
+    # if spotify_url provided but no manual image_url, fetch from Spotify
+    if spotify_url and not image_url:
+        from .spotify_helper import fetch_album_art
+        fetched = fetch_album_art(title, artist, spotify_url=spotify_url)
+        if fetched:
+            image_url = fetched
+
+    song.image_url = image_url
+
+    db.session.commit()
 
     
 
@@ -306,7 +358,10 @@ def edit_song (song_id):
         'og_key': song.og_key,
         'tempo' : song.tempo,
         'singer_type' : song.singer_type,
-        'holiday' : song.holiday
+        'holiday' : song.holiday,
+        'image_url' : song.image_url,
+        'spotify_url' : song.spotify_url
+
     }})
 
 @views.route('/update_setlist_order', methods = ['POST'])
@@ -339,10 +394,13 @@ def serialize_song(song):
         'og_key': song.og_key,
         'tempo': song.tempo,
         'singer_type': song.singer_type,
-        'holiday': song.holiday
+        'holiday': song.holiday,
+        'image_url': song.image_url,
+        'spotify_url': song.spotify_url
     }
 
 def get_sundays(num_weeks_before=6, num_weeks_after=10):
+
     today = date.today()
 
     recent_sunday = today - timedelta(days=today.weekday() + 1) if today.weekday() != 6 else today
@@ -351,3 +409,26 @@ def get_sundays(num_weeks_before=6, num_weeks_after=10):
     for i in range(-num_weeks_before, num_weeks_after + 1):
         sundays.append(recent_sunday + timedelta(weeks=i))
     return sundays
+
+@views.route('/setlist/<int:id>/live')
+@login_required
+def live_mode(id):
+    setlist = Setlist.query.get_or_404(id)
+    if setlist.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    songs = [link.song for link in setlist.songs_link]
+    import json
+    songs_data = json.dumps([{
+        'id': s.id,
+        'title': s.title,
+        'artist': s.artist,
+        'og_key': s.og_key,
+        'sheet_data': s.sheet_data or '',
+        'image_url': s.image_url or ''
+    } for s in songs])
+    
+    return render_template('live_mode.html',
+                           setlist=setlist,
+                           songs_data=songs_data,
+                           layout_class='live-layout')

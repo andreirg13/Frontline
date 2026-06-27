@@ -2,34 +2,35 @@
 {% block title %}Pick a Song{% endblock %}
 
 {% block content %}
-<div class="picker-container">
-  <h1 class="picker-title">Song Sheet Maker</h1>
+<div class="main" id="mainView">
+  <div id="main-content" class="flex-grow-1 p-4">
 
-  
+    <h1 class="setlist-page-title">Songsheet Maker</h1>
+    <p style="color: #999; margin-bottom: 1.5rem; font-size: 0.9rem;">Select a song to view or edit its chord sheet.</p>
 
-  <div class="search-wrapper">
-    <i class="bi bi-search search-icon"></i>
-    <input type="text" id="searchInput" placeholder="Search for songs..." autocomplete="off" />
-  </div>
+    <div class="search-wrapper" style=" margin-bottom: 1.5rem;">
+      <input type="text" id="searchInput" placeholder="Search for songs..." autocomplete="off" />
+      <button class="search-btn"><i class="bi bi-search"></i></button>
+    </div>
 
-  <div id="songPickerList" class="picker-list">
-    {% for song in songs %}
-      <div
-        class="picker-item"
-        data-url="{{ url_for('views.songsheet_maker', id=song.id) }}"
-      >
-        <span class="picker-item-text">
-          <strong>{{ song.title }}</strong> — <em>{{ song.artist }}</em>
-        </span>
+    <div class="song-table-labels" >
+      <div class="title-col">TITLE</div>
+      <div class="artist-col">ARTIST</div>
+      <div class="key-col">KEY</div>
+    </div>
+    
+    <div id="songPickerList" >
+      {% for song in songs %}
+      <div class="song-row picker-item" data-url="{{ url_for('views.songsheet_maker', id=song.id) }}" style="cursor: pointer;">
+        <div class="title-col"><strong>{{ song.title }}</strong></div>
+        <div class="artist-col">{{ song.artist }}</div>
+        <div class="key-col">{{ song.og_key }}</div>
       </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
+
   </div>
-
-
-  
 </div>
-
-<link rel="stylesheet" href="{{ url_for('static', filename='sheet_picker.css') }}">
 
 <script src="{{ url_for('static', filename='sheetPicker.js') }}"></script>
 {% endblock %}

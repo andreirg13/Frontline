@@ -17,6 +17,8 @@ class Song(db.Model):
     singer_type = db.Column(db.String(10)) # 'Male' or 'Female'
     holiday = db.Column(db.String(20))  # 'Christmas', 'Easter', 'Palm Sunday' etc.
     sheet_data = db.Column(db.Text, nullable=True)
+    image_url = db.Column(db.String(500), nullable=True)  # New field for image URL
+    spotify_url = db.Column(db.String(500), nullable=True)  # New field for Spotify URL
     
 
 

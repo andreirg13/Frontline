@@ -1,44 +1,47 @@
 {% extends "base.html" %} {% block title %}Setlists{% endblock %}
-{%block content%}
+{% block content %}
 <div class="main" id="mainView">
-    <!-- RIGHT COLUMN -->
-    <div id="main-content" class="flex-grow-1 p-4">
-        <div class="song-library-header">
-            <h1>Setlists</h1>
-        </div>
-    </div>
+  <div id="main-content" class="flex-grow-1 p-4">
+
+    <h1 class="setlist-page-title">Setlist Manager</h1>
+
     <div class="setlist-container">
-        {% for setlist in setlists%}
-        {%if setlist.songs_link|length > 0%}
-            <div class="setlist-card">
-                <div class="setlist-header"> {{ setlist.date_created.strftime('%B %d, %Y')}}
-                    <ul class="setlist-songs">
-                        {% for link in setlist.songs_link %}
-                            <li class="song-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="song-title">{{ link.song.title }}</span>
-                                    <span class="song-artist">{{ link.song.artist }}</span>
-                                    <span class="song-key">{{ link.song.og_key }}</span>
-                                </div>
+      {% for setlist in setlists %}
+      {% if setlist.songs_link|length > 0 %}
+      <div class="setlist-card">
 
-                                <div class="col-auto dropdown ms-auto">
-                                    <button class="dropdown-toggle-btn btn btn-sm btn-outline-light" type="button">
-                                        <i class="bi bi-three-dots"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-dark">
-                                        <li><a class="dropdown-item" href="#" onclick="deleteFromSetlist({{ link.song.id }}, '{{ setlist.date_created.isoformat() }}')">Delete from this setlist</a></li>
-                                    </ul>
-                                </div>
-                            </li>
+        <div class="setlist-date">{{ setlist.date_created.strftime('%B %d, %Y') }}</div>
 
-                        
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            {%endif%}
-        {% endfor %}
+        <div class="setlist-table-labels">
+          <span class="sl-title-col">TITLE</span>
+          <span class="sl-artist-col">ARTIST</span>
+          <span class="sl-key-col">KEY</span>
+          <span class="sl-menu-col"></span>
+        </div>
+
+        <ul class="setlist-songs">
+            {% for link in setlist.songs_link %}
+            <li class="setlist-song-row">
+              <span class="sl-title-col">{{ link.song.title }}</span>
+              <span class="sl-artist-col">{{ link.song.artist }}</span>
+              <span class="sl-key-col">{{ link.song.og_key }}</span>
+              <div class="sl-menu-col" style="position: relative;">
+                <button class="sl-menu-btn" data-dropdown="drop-{{ loop.index }}-{{ link.song.id }}">
+                  <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="sl-dropdown" id="drop-{{ loop.index }}-{{ link.song.id }}">
+                    <li><a href="#" onclick="deleteFromSetlist({{ link.song.id }}, '{{ setlist.date_created.isoformat() }}', this)">Remove</a></li>
+                </ul>
+              </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+      </div>
+      {% endif %}
+      {% endfor %}
     </div>
 
+  </div>
 </div>
-{%endblock%}
+{% endblock %}

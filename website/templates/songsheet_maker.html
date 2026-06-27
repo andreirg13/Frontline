@@ -63,12 +63,24 @@ block content %}
         >
           wrap selection
         </button>
+        <button id="clearChordsBtn" type="button">Clear Sheet</button>
       </div>
     </div>
     <div class="shortcut-note">
       Shortcuts: type <code>;g</code>, <code>;f#m</code>, <code>;bbmaj7</code> →
       auto becomes <code>[G]</code>, <code>[F#m]</code>, <code>[Bbmaj7]</code> ·
       <code>;1</code>–<code>;7</code> → diatonic chord for current key
+    </div>
+  </div>
+
+  <div id="clearModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:10px; padding:2rem; max-width:380px; width:90%; box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+      <h3 style="margin:0 0 8px; color:#111; font-size:1.1rem;">Clear chord sheet?</h3>
+      <p style="color:#666; font-size:0.9rem; margin:0 0 1.5rem;">This cannot be undone.</p>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button id="clearCancel" style="padding:8px 18px; border:1px solid #ddd; background:transparent; border-radius:6px; cursor:pointer; font-size:14px;">Cancel</button>
+        <button id="clearConfirm" style="padding:8px 18px; background:#dc2626; color:white; border:none; border-radius:6px; cursor:pointer; font-size:14px;">Clear</button>
+      </div>
     </div>
   </div>
 
